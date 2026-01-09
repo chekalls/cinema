@@ -92,4 +92,5 @@ public class Sceance extends BaseEntity {
     public void setFilm(Film film) {
         this.film = film;
     }
+
 }
