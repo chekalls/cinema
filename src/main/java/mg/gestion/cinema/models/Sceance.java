@@ -34,7 +34,6 @@ public class Sceance extends BaseEntity {
     }
 
     public void setDebutFin(Film film) {
-
     }
 
     public Integer getId() {
