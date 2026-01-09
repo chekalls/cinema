@@ -4,8 +4,8 @@ import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
 
-@Table(name = "referenciel")
-public class Referenciel extends BaseEntity {
+@Table(name = "referentiel")
+public class Referentiel extends BaseEntity {
     @PrimaryKey
     private Integer id;
     @Column

@@ -20,7 +20,8 @@ import mg.gestion.cinema.annotation.Generated;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.models.BaseEntity;
-import mg.gestion.cinema.models.Referenciel;
+import mg.gestion.cinema.models.Referentiel;
+import mg.gestion.cinema.models.Referentiel;
 
 public class CGenericUtils {
 
@@ -249,9 +250,9 @@ public class CGenericUtils {
             StringBuilder query = new StringBuilder(ClassUtils.buildQueryFromClass(clazz));
             List<Object> params = new ArrayList<>();
 
-            // If Referenciel subclass, always filter by categorie
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+            // If Referentiel subclass, always filter by categorie
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     query.append(" WHERE categorie = ?");
                     params.add(categorie);
@@ -322,10 +323,10 @@ public class CGenericUtils {
             Map<String, Object> effectiveCriteria = (searchCriteria != null) ? new HashMap<>(searchCriteria)
                     : new HashMap<>();
 
-            // Inject categorie for Referenciel subclasses if absent
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
                     && !effectiveCriteria.containsKey("categorie")) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     effectiveCriteria.put("categorie", categorie);
                 }
@@ -417,10 +418,10 @@ public class CGenericUtils {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
             Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
 
-            // Inject categorie for Referenciel subclasses if absent
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
                     && !effectiveCriteria.containsKey("categorie")) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     effectiveCriteria.put("categorie", categorie);
                 }
@@ -504,10 +505,10 @@ public class CGenericUtils {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
             Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
 
-            // Inject categorie for Referenciel subclasses if absent
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
                     && !effectiveCriteria.containsKey("categorie")) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     effectiveCriteria.put("categorie", categorie);
                 }
@@ -905,10 +906,10 @@ public class CGenericUtils {
             StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ").append(tableName);
 
             Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
-            // Inject categorie for Referenciel subclasses if absent
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
                     && !effectiveCriteria.containsKey("categorie")) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     effectiveCriteria.put("categorie", categorie);
                 }
@@ -1035,10 +1036,10 @@ public class CGenericUtils {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
             Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
 
-            // Inject categorie for Referenciel subclasses if absent
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
                     && !effectiveCriteria.containsKey("categorie")) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     effectiveCriteria.put("categorie", categorie);
                 }
@@ -1132,9 +1133,9 @@ public class CGenericUtils {
             // Construire la clause WHERE
             StringBuilder whereClause = new StringBuilder();
             List<Object> params = new ArrayList<>();
-            // If Referenciel subclass, add mandatory categorie filter
-            if (Referenciel.class.isAssignableFrom(clazz) && clazz != Referenciel.class) {
-                String categorie = ((Referenciel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+            // If Referentiel subclass, add mandatory categorie filter
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
                 if (categorie != null && !categorie.isBlank()) {
                     whereClause.append(" WHERE categorie = ?");
                     params.add(categorie);

@@ -101,12 +101,12 @@ public class ClassUtils {
     }
 
     public static String getTableName(Class<?> clazz) {
-        // If class is a Referenciel subclass, use parent table name
+        // If class is a Referentiel subclass, use parent table name
         try {
-            Class<?> referencielClass = Class.forName("mg.gestion.cinema.models.Referenciel");
-            if (referencielClass.isAssignableFrom(clazz) && clazz != referencielClass) {
-                // Force table resolution to Referenciel's table
-                return getTableName(referencielClass);
+            Class<?> referentielClass = Class.forName("mg.gestion.cinema.models.Referentiel");
+            if (referentielClass.isAssignableFrom(clazz) && clazz != referentielClass) {
+                // Force table resolution to Referentiel's table
+                return getTableName(referentielClass);
             }
         } catch (ClassNotFoundException ignored) {}
 

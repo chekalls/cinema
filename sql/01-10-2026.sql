@@ -2,7 +2,7 @@
 
 -- DROP TABLE IF EXISTS public.referenciel;
 
-CREATE TABLE IF NOT EXISTS public.referenciel
+CREATE TABLE IF NOT EXISTS public.referentiel
 (
     id integer NOT NULL DEFAULT nextval('referenciel_id_seq'::regclass),
     categorie character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -14,13 +14,13 @@ CREATE TABLE IF NOT EXISTS public.referenciel
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.referenciel
+ALTER TABLE IF EXISTS public.referentiel
     OWNER to postgres;
 
 
 
 -- Genres
-INSERT INTO referentiel (categorie, nom, code, description)
+INSERT INTO referentiel (categorie, nom, code, desce)
 VALUES
 ('GENRE_FILM', 'Action',     'ACTION',    'Films caractérisés par des scènes dynamiques, combats, poursuites et explosions'),
 ('GENRE_FILM', 'Aventure',   'AVENTURE',  'Films centrés sur le voyage, la découverte et les quêtes'),
@@ -39,7 +39,7 @@ VALUES
 
 
 -- Formats
-INSERT INTO referentiel (categorie, nom, code, description)
+INSERT INTO referentiel (categorie, nom, code, desce)
 VALUES
 ('FORMAT_PROJECTION', '2D',           '2D',      'Projection standard en deux dimensions'),
 ('FORMAT_PROJECTION', '3D',           '3D',      'Projection en trois dimensions nécessitant des lunettes spéciales'),
@@ -54,7 +54,7 @@ ALTER TABLE IF EXISTS public.l_genre_film DROP CONSTRAINT IF EXISTS l_genre_film
 
 ALTER TABLE IF EXISTS public.l_genre_film
     ADD FOREIGN KEY (genre_id)
-    REFERENCES public.referenciel (id) MATCH SIMPLE
+    REFERENCES public.referentiel (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -81,7 +81,7 @@ ALTER TABLE IF EXISTS public.sceance
 
 ALTER TABLE IF EXISTS public.sceance
     ADD FOREIGN KEY (format_id)
-    REFERENCES public.referenciel (id) MATCH SIMPLE
+    REFERENCES public.referentiel (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

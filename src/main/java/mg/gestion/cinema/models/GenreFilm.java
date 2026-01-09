@@ -3,7 +3,7 @@ package mg.gestion.cinema.models;
 import java.sql.Connection;
 import java.util.Map;
 
-public class GenreFilm extends Referenciel{
+public class GenreFilm extends Referentiel{
     public GenreFilm() {
         super.setCategorie("GENRE_FILM");
     }
