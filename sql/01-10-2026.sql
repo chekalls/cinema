@@ -85,3 +85,77 @@ ALTER TABLE IF EXISTS public.sceance
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
+
+
+CREATE TABLE IF NOT EXISTS public.place
+(
+    id integer NOT NULL DEFAULT nextval('place_id_seq'::regclass),
+    rang integer NOT NULL,
+    col integer NOT NULL,
+    type_place_id integer,
+    statut integer,
+    salle_id integer,
+    CONSTRAINT place_pkey PRIMARY KEY (id),
+    CONSTRAINT place_salle_id_fkey FOREIGN KEY (salle_id)
+        REFERENCES public.salle (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT place_type_place_id_fkey FOREIGN KEY (type_place_id)
+        REFERENCES public.referentiel (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.place
+    OWNER to postgres;
+
+INSERT INTO referentiel (categorie, code, nom, desce) VALUES
+    ('TYPE_PLACE', 'STD',  'Standard',                  'Place standard'),
+    ('TYPE_PLACE', 'PMR',  'Accessible PMR',            'Place réservée PMR'),
+    ('TYPE_PLACE', 'VIP',  'VIP / Premium',             'Place en zone privilégiée'),
+    ('TYPE_PLACE', 'DUO',  'Duo / Couple',              'Siège duo sans accoudoir');
+
+CREATE TABLE IF NOT EXISTS public.statut
+(
+    id integer NOT NULL DEFAULT nextval('statut_id_seq'::regclass),
+    code character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    nom character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    categorie character varying(20) COLLATE pg_catalog."default",
+    desce text COLLATE pg_catalog."default",
+    ordre smallint DEFAULT 0,
+    CONSTRAINT statut_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.statut
+    OWNER to postgres;
+
+
+-- Statuts conseillés pour démarrer un projet cinéma sérieux
+INSERT INTO statut (code, nom, categorie, desce, ordre) VALUES
+    -- Global
+    ('ACTIF',     'Actif',          NULL,        NULL, 10),
+    ('INACTIF',   'Inactif',        NULL,        NULL, 20),
+    ('SUPPRIME',  'Supprimé',       NULL,        NULL, 90),
+
+    -- Places (le plus important)
+    ('DISPO',     'Disponible',     'PLACE',     NULL, 10),
+    ('SELECTION', 'En sélection',   'PLACE',     NULL, 15),
+    ('RESERVEE',  'Réservée',       'PLACE',     NULL, 20),
+    ('VENDUE',    'Vendue',         'PLACE',     NULL, 30),
+    ('BLOQUEE',   'Bloquée',        'PLACE',     NULL, 40),
+
+    -- Séances
+    ('PLANIFIEE', 'Planifiée',      'SEANCE',    NULL, 10),
+    ('OUVERTE',   'Billetterie ouverte', 'SEANCE', NULL, 20),
+    ('EN_COURS',  'En cours',       'SEANCE',    NULL, 30),
+    ('TERMINEE',  'Terminée',       'SEANCE',    NULL, 40),
+
+    -- Réservations
+    ('PANIER',    'Panier',         'RESERVATION',NULL, 10),
+    ('PAYEE',     'Payée',          'RESERVATION',NULL, 30),
+    ('ANNULEE',   'Annulée',        'RESERVATION',NULL, 90);
