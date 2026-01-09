@@ -101,6 +101,15 @@ public class ClassUtils {
     }
 
     public static String getTableName(Class<?> clazz) {
+        // If class is a Referentiel subclass, use parent table name
+        try {
+            Class<?> referentielClass = Class.forName("mg.gestion.cinema.models.Referentiel");
+            if (referentielClass.isAssignableFrom(clazz) && clazz != referentielClass) {
+                // Force table resolution to Referentiel's table
+                return getTableName(referentielClass);
+            }
+        } catch (ClassNotFoundException ignored) {}
+
         if (clazz.isAnnotationPresent(Table.class)) {
             Table tableAnnotation = clazz.getAnnotation(Table.class);
             if (!tableAnnotation.name().isEmpty()) {
