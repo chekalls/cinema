@@ -1,0 +1,9 @@
+CREATE TABLE billet (
+    id SERIAL PRIMARY KEY,
+    seance_id BIGINT NOT NULL REFERENCES sceance(id) ON DELETE RESTRICT,
+    prix_paye DECIMAL(10,2) NOT NULL,
+    type_tarif VARCHAR(50),
+    statut VARCHAR(20) DEFAULT 'valide', 
+    date_vente TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    date_controle TIMESTAMP WITH TIME ZONE
+);
