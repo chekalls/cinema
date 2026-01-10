@@ -176,13 +176,13 @@ public class SceanceController {
             criteria.put("id", id);
             Sceance sceance = CGenericUtils.findOne(conn, Sceance.class, criteria, true);
             
-            LocalDateTime dateTime = (date!=null && !date.isEmpty()) ? DataUtil.convertStringToDateTime(date) : LocalDateTime.now();
+            LocalDateTime dateTime = (date!=null && !date.isEmpty()) ? DataUtil.convertStringToDateTime(date, "yyyy-MM-dd'T'HH:mm") : LocalDateTime.now();
 
             if (sceance == null) {
                 redirectAttributes.addFlashAttribute("error", "Séance non trouvée");
                 return "redirect:/sceances";
             }
-            List<Billet> billets = CGenericUtils.find(conn, Billet.class, Map.of("seanceId", sceance.getId())); 
+            List<Billet> billets = sceance.getBillets(conn, dateTime);
             int billetDisponible = sceance.getSalle().getCapaciteTotal() - billets.size();
             List<Place> places = sceance.getPlaces(conn, dateTime);
 

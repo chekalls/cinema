@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-
 import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
@@ -34,28 +33,34 @@ public class Sceance extends BaseEntity {
     @Column(ignore = true)
     private Salle salle;
 
+    public List<Billet> getBillets(Connection conn, LocalDateTime date) {
+        String sql = "SELECT * FROM billet WHERE seance_id = ? AND date_achat <= ? ORDER BY date_achat ASC";
+        List<Billet> billets = CGenericUtils.executeQuery(conn, Billet.class, sql, this.id, date);
+        return billets;
+    }
+
     public List<Place> getPlaces(Connection conn, LocalDateTime dateVisualisation) {
-        // Récupère toutes les places avec leur statut effectif pour cette séance
-        // Le statut est déterminé par le billet existant (si présent) ou le statut par défaut de la place
         String sql = "SELECT p.id, p.rang, p.col, p.type_place_id, p.salle_id, p.date_modification, " +
-                     "  CASE " +
-                     "    WHEN b.id IS NOT NULL AND s.code = 'PAYE' THEN " +
-                     "      (SELECT ordre FROM statut WHERE code = 'VENDUE' AND categorie = 'PLACE' LIMIT 1) " +
-                     "    WHEN b.id IS NOT NULL AND s.code = 'UTILISE' THEN " +
-                     "      (SELECT ordre FROM statut WHERE code = 'VENDUE' AND categorie = 'PLACE' LIMIT 1) " +
-                     "    WHEN b.id IS NOT NULL AND s.code = 'PANIER' THEN " +
-                     "      (SELECT ordre FROM statut WHERE code = 'SELECTION' AND categorie = 'PLACE' LIMIT 1) " +
-                     "    ELSE p.statut " +
-                     "  END AS statut " +
-                     "FROM place p " +
-                     "LEFT JOIN billet b ON b.place_id = p.id AND b.seance_id = ? " +
-                     "LEFT JOIN statut s ON b.statut = s.id " +
-                     "WHERE p.salle_id = ? " +
-                     "ORDER BY p.rang, p.col";
+                "  CASE " +
+                "    WHEN b.id IS NOT NULL AND s.code = 'PAYE' THEN 7 " +
+                "    WHEN b.id IS NOT NULL AND s.code = 'UTILISE' THEN 7 " +
+                "    WHEN b.id IS NOT NULL AND s.code = 'PANIER' THEN 5 " +
+                "    ELSE p.statut " +
+                "  END AS statut " +
+                "FROM place p " +
+                "LEFT JOIN billet b ON b.place_id = p.id AND b.seance_id = ? " +
+                "    AND b.date_achat <= ? " +
+                "LEFT JOIN statut s ON b.statut = s.id " +
+                "WHERE p.salle_id = ? " +
+                "ORDER BY p.rang, p.col";
 
         List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
-                                                         this.id,
-                                                         this.salleId);
+                this.id,
+                dateVisualisation,
+                this.salleId);
+        for (Place place : places) {
+            place.loadAttributes(conn);
+        }
         return places;
     }
 
@@ -66,24 +71,26 @@ public class Sceance extends BaseEntity {
             return List.of();
         }
 
-        int dispoOrdre = statutPlace.getOrdre();
-
         String sql = "SELECT p.* FROM place p " +
-                     "WHERE p.salle_id = ? " +
-                     "AND p.statut = ? " +
-                     "AND NOT EXISTS (" +
-                     "  SELECT 1 FROM billet b " +
-                     "  JOIN statut s ON b.statut = s.id " +
-                     "  WHERE b.place_id = p.id " +
-                     "  AND b.seance_id = ? " +
-                     "  AND s.code IN ('PAYE', 'UTILISE')" +
-                     ") " +
-                     "ORDER BY p.rang, p.col";
+                "WHERE p.salle_id = ? " +
+                "AND p.statut = ? " +
+                "AND NOT EXISTS (" +
+                "  SELECT 1 FROM billet b " +
+                "  JOIN statut s ON b.statut = s.id " +
+                "  WHERE b.place_id = p.id " +
+                "  AND b.seance_id = ? " +
+                "  AND s.code IN ('PAYE', 'UTILISE')" +
+                ") " +
+                "ORDER BY p.rang, p.col";
 
         List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
-                                                         this.salleId,
-                                                         dispoOrdre,
-                                                         this.id);
+                this.salleId,
+                statutPlace.getId(),
+                this.id);
+        for (Place place : places) {
+            place.loadAttributes(conn);
+        }
+
         return places;
     }
 
@@ -93,7 +100,7 @@ public class Sceance extends BaseEntity {
         return sceances;
     }
 
-    public static List<Sceance> getProchainSceances(Connection conn,LocalDate date) {
+    public static List<Sceance> getProchainSceances(Connection conn, LocalDate date) {
         String sql = "SELECT * FROM sceance WHERE debut >= ? ORDER BY debut ASC";
         List<Sceance> sceances = CGenericUtils.executeQuery(conn, Sceance.class, sql, date);
         return sceances;
@@ -104,7 +111,7 @@ public class Sceance extends BaseEntity {
         if (this.filmId != null) {
             this.film = (Film) new Film().findOne(conn, java.util.Collections.singletonMap("id", this.filmId));
         }
-        if(this.salleId != null){
+        if (this.salleId != null) {
             this.salle = (Salle) new Salle().findOne(conn, java.util.Collections.singletonMap("id", this.salleId));
         }
     }

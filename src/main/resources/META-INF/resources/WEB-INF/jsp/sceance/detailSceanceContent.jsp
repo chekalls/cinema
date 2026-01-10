@@ -27,6 +27,54 @@
 </c:if>
 
 <div class="row">
+    <!-- Filtre de date -->
+    <div class="col-md-12">
+        <div class="card card-outline card-secondary collapsed-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Filtrer par date
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="/sceances/view/${sceance.id}" method="get" class="form-inline">
+                    <div class="form-group mr-3">
+                        <label for="dateFilter" class="mr-2">
+                            <i class="fas fa-clock mr-1"></i>
+                            Date et heure :
+                        </label>
+                        <input type="datetime-local" 
+                               class="form-control" 
+                               id="dateFilter" 
+                               name="date" 
+                               value="${param.date}">
+                    </div>
+                    <button type="submit" class="btn btn-primary mr-2">
+                        <i class="fas fa-search mr-1"></i>
+                        Appliquer
+                    </button>
+                    <a href="/sceances/view/${sceance.id}" class="btn btn-default">
+                        <i class="fas fa-redo mr-1"></i>
+                        Réinitialiser
+                    </a>
+                    <c:if test="${not empty param.date}">
+                        <span class="badge badge-info ml-3">
+                            <i class="fas fa-filter mr-1"></i>
+                            Filtré
+                        </span>
+                    </c:if>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <!-- Informations principales -->
     <div class="col-md-8">
         <div class="card card-info">
@@ -148,25 +196,25 @@
                                             <c:choose>
                                                 <c:when test="${place != null}">
                                                     <c:choose>
-                                                        <c:when test="${place.statut == 10}">
+                                                        <c:when test="${place.statut == 4}">
                                                             <!-- Disponible -->
                                                             <span class="badge badge-success" style="cursor: pointer;" title="Place ${rang}-${col}: Disponible">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 15}">
+                                                        <c:when test="${place.statut == 5}">
                                                             <!-- En sélection -->
                                                             <span class="badge badge-warning" style="cursor: pointer;" title="Place ${rang}-${col}: En sélection">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 20}">
+                                                        <c:when test="${place.statut == 6}">
                                                             <!-- Réservée -->
                                                             <span class="badge badge-info" style="cursor: pointer;" title="Place ${rang}-${col}: Réservée">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 30}">
+                                                        <c:when test="${place.statut == 7}">
                                                             <!-- Vendue -->
                                                             <span class="badge badge-danger" style="cursor: pointer;" title="Place ${rang}-${col}: Vendue">
                                                                 <i class="fas fa-chair"></i>

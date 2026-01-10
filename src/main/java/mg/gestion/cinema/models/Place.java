@@ -105,4 +105,12 @@ public class Place extends BaseEntity {
     public void setDateModification(LocalDateTime dateModification) {
         this.dateModification = dateModification;
     }
+
+    public Statut getStatutDetails() {
+        return statutDetails;
+    }
+
+    public void setStatutDetails(Statut statutDetails) {
+        this.statutDetails = statutDetails;
+    }
 }

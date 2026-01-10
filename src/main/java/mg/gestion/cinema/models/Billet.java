@@ -22,6 +22,8 @@ public class Billet extends BaseEntity{
     private LocalDateTime dateUtilisation;
     @Column(name = "date_achat")
     private LocalDateTime dateAchat;
+    @Column(name = "reservation_id")
+    private Integer reservationId;
     @Column
     private Integer statut;
     public Integer getId() {
@@ -72,4 +74,10 @@ public class Billet extends BaseEntity{
     public void setDateAchat(LocalDateTime dateAchat) {
         this.dateAchat = dateAchat;
     }
-}
+
+   public Integer getReservationId() {
+    return reservationId;
+   }
+   public void setReservationId(Integer reservationId) {
+    this.reservationId = reservationId;
+   }}
