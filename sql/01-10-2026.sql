@@ -192,3 +192,11 @@ INSERT INTO referentiel (categorie, code, nom, desce) VALUES
     ('TYPE_TARIF', 'CARTE',      'Abonné / Carte',           'Tarif avantage carte fidélité ou illimitée');
 
 
+
+INSERT INTO public.statut 
+    (code,       nom,                    categorie,   desce,                          ordre)
+VALUES
+    ('PANIER',   'Dans le panier',       'BILLET',    'Sélection en cours',           10),
+    ('PAYE',     'Payé / Confirmé',      'BILLET',    'Billet valide et payé',        20),
+    ('UTILISE',  'Utilisé',              'BILLET',    'Spectateur est entré',         30),
+    ('ANNULE',   'Annulé',               'BILLET',    'Annulation de la réservation', 80);
