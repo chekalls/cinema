@@ -29,10 +29,16 @@ public class Place extends BaseEntity {
     @Column(ignore = true)
     private TypePlace typePlace;
 
+    @Column(ignore = true)
+    private Statut statutDetails;
+
     @Loader
     public void loadAttributes(Connection conn){
         if(this.typePlaceId != null){
             this.typePlace = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,TypePlace.class,Map.of("id",this.typePlaceId));
+        }
+        if(this.statut != null){
+            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Statut.class,Map.of("ordre",this.statut,"categorie","PLACE"));
         }
     }
 

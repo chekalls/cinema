@@ -1,6 +1,7 @@
 package mg.gestion.cinema.controller;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import mg.gestion.cinema.models.Billet;
 import mg.gestion.cinema.models.Film;
+import mg.gestion.cinema.models.Place;
 import mg.gestion.cinema.models.Salle;
 import mg.gestion.cinema.models.Sceance;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
+import mg.gestion.cinema.utils.DataUtil;
 import mg.gestion.cinema.utils.Page;
 
 @Controller
@@ -165,18 +169,28 @@ public class SceanceController {
     }
 
     @GetMapping("/view/{id}")
-    public String voirSceance(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+    public String voirSceance(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes,@RequestParam(name = "date",required = false) String date) {
+
         try (Connection conn = connexionService.getConnection()) {
             Map<String, Object> criteria = new HashMap<>();
             criteria.put("id", id);
             Sceance sceance = CGenericUtils.findOne(conn, Sceance.class, criteria, true);
+            
+            LocalDateTime dateTime = (date!=null && !date.isEmpty()) ? DataUtil.convertStringToDateTime(date) : LocalDateTime.now();
 
             if (sceance == null) {
                 redirectAttributes.addFlashAttribute("error", "Séance non trouvée");
                 return "redirect:/sceances";
             }
+            List<Billet> billets = CGenericUtils.find(conn, Billet.class, Map.of("seanceId", sceance.getId())); 
+            int billetDisponible = sceance.getSalle().getCapaciteTotal() - billets.size();
+            List<Place> places = sceance.getPlaces(conn, dateTime);
 
+
+            model.addAttribute("disponible",billetDisponible);
             model.addAttribute("sceance", sceance);
+            model.addAttribute("billets",billets);
+            model.addAttribute("places",places);
             return "sceance/detailSceance";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement : " + e.getMessage());

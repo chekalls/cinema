@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.cglib.core.Local;
 
 import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
@@ -31,6 +30,34 @@ public class Sceance extends BaseEntity {
 
     @Column(ignore = true)
     private Film film;
+
+    @Column(ignore = true)
+    private Salle salle;
+
+    public List<Place> getPlaces(Connection conn, LocalDateTime dateVisualisation) {
+        // Récupère toutes les places avec leur statut effectif pour cette séance
+        // Le statut est déterminé par le billet existant (si présent) ou le statut par défaut de la place
+        String sql = "SELECT p.id, p.rang, p.col, p.type_place_id, p.salle_id, p.date_modification, " +
+                     "  CASE " +
+                     "    WHEN b.id IS NOT NULL AND s.code = 'PAYE' THEN " +
+                     "      (SELECT ordre FROM statut WHERE code = 'VENDUE' AND categorie = 'PLACE' LIMIT 1) " +
+                     "    WHEN b.id IS NOT NULL AND s.code = 'UTILISE' THEN " +
+                     "      (SELECT ordre FROM statut WHERE code = 'VENDUE' AND categorie = 'PLACE' LIMIT 1) " +
+                     "    WHEN b.id IS NOT NULL AND s.code = 'PANIER' THEN " +
+                     "      (SELECT ordre FROM statut WHERE code = 'SELECTION' AND categorie = 'PLACE' LIMIT 1) " +
+                     "    ELSE p.statut " +
+                     "  END AS statut " +
+                     "FROM place p " +
+                     "LEFT JOIN billet b ON b.place_id = p.id AND b.seance_id = ? " +
+                     "LEFT JOIN statut s ON b.statut = s.id " +
+                     "WHERE p.salle_id = ? " +
+                     "ORDER BY p.rang, p.col";
+
+        List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
+                                                         this.id,
+                                                         this.salleId);
+        return places;
+    }
 
     public List<Place> getPlacesLibre(Connection conn, LocalDateTime dateAchat) {
         Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code", "DISPO"));
@@ -76,6 +103,9 @@ public class Sceance extends BaseEntity {
     private void loadAttributes(Connection conn) {
         if (this.filmId != null) {
             this.film = (Film) new Film().findOne(conn, java.util.Collections.singletonMap("id", this.filmId));
+        }
+        if(this.salleId != null){
+            this.salle = (Salle) new Salle().findOne(conn, java.util.Collections.singletonMap("id", this.salleId));
         }
     }
 
@@ -136,5 +166,13 @@ public class Sceance extends BaseEntity {
 
     public void setFilm(Film film) {
         this.film = film;
+    }
+
+    public Salle getSalle() {
+        return salle;
+    }
+
+    public void setSalle(Salle salle) {
+        this.salle = salle;
     }
 }
