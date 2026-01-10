@@ -20,6 +20,8 @@ public class Billet extends BaseEntity{
     private double prixReel;
     @Column(name = "date_utilisation")
     private LocalDateTime dateUtilisation;
+    @Column(name = "date_achat")
+    private LocalDateTime dateAchat;
     @Column
     private Integer statut;
     public Integer getId() {
@@ -63,5 +65,11 @@ public class Billet extends BaseEntity{
     }
     public void setStatut(Integer statut) {
         this.statut = statut;
+    }
+    public LocalDateTime getDateAchat() {
+        return dateAchat;
+    }
+    public void setDateAchat(LocalDateTime dateAchat) {
+        this.dateAchat = dateAchat;
     }
 }

@@ -200,3 +200,49 @@ VALUES
     ('PAYE',     'Payé / Confirmé',      'BILLET',    'Billet valide et payé',        20),
     ('UTILISE',  'Utilisé',              'BILLET',    'Spectateur est entré',         30),
     ('ANNULE',   'Annulé',               'BILLET',    'Annulation de la réservation', 80);
+
+
+CREATE OR REPLACE VIEW v_place_billet AS 
+SELECT 
+    p.*,
+    b.seance_id AS seance,
+    b.prix_reel AS prix_reel,
+    b.date_achat AS date_achat,
+    b.date_utilisation AS date_utilisation,
+    s.code AS statut_billet_code,
+    s.nom AS statut_billet_nom,
+    ps.code AS statut_place_code,
+    ps.nom AS statut_place_nom
+FROM place p 
+JOIN billet b ON p.id= b.place_id
+JOIN statut s ON b.statut = s.id
+JOIN statut ps ON p.statut = ps.id;
+
+
+SELECT 
+    p.id,
+    p.rang,
+    p.col,
+    p.type_place_id,
+    s.id as salle_id,
+    sc.id as seance_id,
+    sc.debut,
+    sc.fin,
+    tp.nom as type_place_nom,
+    sp.nom as statut_place_nom
+FROM place p
+JOIN salle s ON p.salle_id = s.id
+JOIN sceance sc ON s.id = sc.salle_id
+LEFT JOIN referentiel tp ON p.type_place_id = tp.id
+LEFT JOIN statut sp ON p.statut = sp.id
+WHERE s.id = $1                          
+    AND DATE(sc.debut) = $2              
+    AND p.statut = 10                    
+    AND NOT EXISTS (
+        SELECT 1 FROM billet b
+        JOIN statut st ON b.statut = st.id
+        WHERE b.place_id = p.id 
+        AND b.seance_id = sc.id
+        AND st.code IN ('PAYE', 'UTILISE')  
+    )
+ORDER BY p.rang, p.col;

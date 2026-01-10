@@ -1,6 +1,7 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
@@ -22,6 +23,8 @@ public class Place extends BaseEntity {
     private Integer statut;
     @Column
     private Integer salleId;
+    @Column(name = "date_modification")
+    private LocalDateTime dateModification;
 
     @Column(ignore = true)
     private TypePlace typePlace;
@@ -87,5 +90,13 @@ public class Place extends BaseEntity {
 
     public void setTypePlace(TypePlace typePlace) {
         this.typePlace = typePlace;
+    }
+
+    public LocalDateTime getDateModification() {
+        return dateModification;
+    }
+
+    public void setDateModification(LocalDateTime dateModification) {
+        this.dateModification = dateModification;
     }
 }

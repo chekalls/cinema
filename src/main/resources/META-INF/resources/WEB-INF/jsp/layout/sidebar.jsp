@@ -121,18 +121,42 @@
                     </a>
                 </li>
 
-                <!-- Réservations -->
+               <!-- Billet -->
                 <li class="nav-item">
-                    <a href="/reservations" class="nav-link">
-                        <i class="nav-icon fas fa-ticket-alt"></i>
-                        <p>Réservations</p>
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>
+                            Billets
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/billets" class="nav-link">
+                                <i class="nav-icon fas fa-building"></i>
+                                <p>liste des billets</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/billets/achatForm" class="nav-link">
+                                <i class="nav-icon fas fa-plus-circle"></i>
+                                <p>Acheter un billet</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/reservations" class="nav-link">
+                                <i class="nav-icon fas fa-ticket-alt"></i>
+                                <p>Réservations</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
-                <!-- Divider -->
-                <li class="nav-header">ADMINISTRATION</li>
 
-                <!-- À propos -->
+
+
+                <li class="nav-header">ADMINISTRATION</li>
                 <li class="nav-item">
                     <a href="/about" class="nav-link">
                         <i class="nav-icon fas fa-info-circle"></i>

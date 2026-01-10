@@ -1,12 +1,18 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.cglib.core.Local;
 
 import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
+import mg.gestion.cinema.utils.CGenericUtils;
 
 @Table(name = "sceance")
 public class Sceance extends BaseEntity {
@@ -25,6 +31,46 @@ public class Sceance extends BaseEntity {
 
     @Column(ignore = true)
     private Film film;
+
+    public List<Place> getPlacesLibre(Connection conn, LocalDateTime dateAchat) {
+        Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code", "DISPO"));
+
+        if (statutPlace == null) {
+            return List.of();
+        }
+
+        int dispoOrdre = statutPlace.getOrdre();
+
+        String sql = "SELECT p.* FROM place p " +
+                     "WHERE p.salle_id = ? " +
+                     "AND p.statut = ? " +
+                     "AND NOT EXISTS (" +
+                     "  SELECT 1 FROM billet b " +
+                     "  JOIN statut s ON b.statut = s.id " +
+                     "  WHERE b.place_id = p.id " +
+                     "  AND b.seance_id = ? " +
+                     "  AND s.code IN ('PAYE', 'UTILISE')" +
+                     ") " +
+                     "ORDER BY p.rang, p.col";
+
+        List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
+                                                         this.salleId,
+                                                         dispoOrdre,
+                                                         this.id);
+        return places;
+    }
+
+    public static List<Sceance> getProchainSceancesFilm(Connection conn, Film film) {
+        String sql = "SELECT * FROM sceance WHERE debut >= now() AND film_id = ? ORDER BY debut ASC";
+        List<Sceance> sceances = CGenericUtils.executeQuery(conn, Sceance.class, sql, film.getId());
+        return sceances;
+    }
+
+    public static List<Sceance> getProchainSceances(Connection conn,LocalDate date) {
+        String sql = "SELECT * FROM sceance WHERE debut >= ? ORDER BY debut ASC";
+        List<Sceance> sceances = CGenericUtils.executeQuery(conn, Sceance.class, sql, date);
+        return sceances;
+    }
 
     @Loader
     private void loadAttributes(Connection conn) {
