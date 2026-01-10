@@ -1,6 +1,10 @@
 package mg.gestion.cinema.models;
 
+import java.sql.Connection;
+import java.util.Map;
+
 import mg.gestion.cinema.annotation.Column;
+import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
 
@@ -18,6 +22,16 @@ public class Place extends BaseEntity {
     private Integer statut;
     @Column
     private Integer salleId;
+
+    @Column(ignore = true)
+    private TypePlace typePlace;
+
+    @Loader
+    public void loadAttributes(Connection conn){
+        if(this.typePlaceId != null){
+            this.typePlace = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,TypePlace.class,Map.of("id",this.typePlaceId));
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -65,5 +79,13 @@ public class Place extends BaseEntity {
 
     public void setStatut(Integer statut) {
         this.statut = statut;
+    }
+
+    public TypePlace getTypePlace() {
+        return typePlace;
+    }
+
+    public void setTypePlace(TypePlace typePlace) {
+        this.typePlace = typePlace;
     }
 }

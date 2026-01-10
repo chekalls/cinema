@@ -159,3 +159,36 @@ INSERT INTO statut (code, nom, categorie, desce, ordre) VALUES
     ('PANIER',    'Panier',         'RESERVATION',NULL, 10),
     ('PAYEE',     'Payée',          'RESERVATION',NULL, 30),
     ('ANNULEE',   'Annulée',        'RESERVATION',NULL, 90);
+
+    -- Table: public.tarif
+
+-- DROP TABLE IF EXISTS public.tarif;
+
+CREATE TABLE IF NOT EXISTS public.tarif
+(
+    id smallint NOT NULL DEFAULT nextval('tarif_id_seq'::regclass),
+    nom character varying(200) COLLATE pg_catalog."default" NOT NULL,
+    prix_base numeric(15,3) NOT NULL,
+    type_tarif_id integer,
+    actif boolean,
+    CONSTRAINT tarif_pkey PRIMARY KEY (id),
+    CONSTRAINT tarif_type_tarif_id_fkey FOREIGN KEY (type_tarif_id)
+        REFERENCES public.referentiel (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.tarif
+    OWNER to postgres;
+
+INSERT INTO referentiel (categorie, code, nom, desce) VALUES
+    ('TYPE_TARIF', 'PLEIN',      'Plein tarif',              'Tarif adulte standard'),
+    ('TYPE_TARIF', 'REDUIT',     'Réduit (-26 ans)',         'Étudiants, apprentis, demandeurs d''emploi, -26 ans'),
+    ('TYPE_TARIF', 'SENIOR',     'Senior (+60 ans)',         'Tarif senior'),
+    ('TYPE_TARIF', 'ENFANT',     'Enfant (-12 ans)',         'Tarif enfant'),
+    ('TYPE_TARIF', '3D',         'Supplément 3D',            'Supplément obligatoire pour les séances 3D'),
+    ('TYPE_TARIF', 'CARTE',      'Abonné / Carte',           'Tarif avantage carte fidélité ou illimitée');
+
+
