@@ -21,7 +21,6 @@ import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.models.BaseEntity;
 import mg.gestion.cinema.models.Referentiel;
-import mg.gestion.cinema.models.Referentiel;
 
 public class CGenericUtils {
 

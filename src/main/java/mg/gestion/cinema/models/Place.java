@@ -38,7 +38,7 @@ public class Place extends BaseEntity {
             this.typePlace = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,TypePlace.class,Map.of("id",this.typePlaceId));
         }
         if(this.statut != null){
-            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Statut.class,Map.of("ordre",this.statut,"categorie","PLACE"));
+            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Statut.class,Map.of("id",this.statut));
         }
     }
 

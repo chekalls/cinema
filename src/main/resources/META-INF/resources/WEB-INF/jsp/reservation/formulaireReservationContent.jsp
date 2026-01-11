@@ -22,15 +22,15 @@
                 <span>${error}</span>
             </div>
         </c:if>
-        <div class="card card-primary card-outline">
+        <div class="card card-warning card-outline">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="fas fa-ticket-alt mr-2"></i>
-                    Achat de billet
+                    <i class="fas fa-calendar-check mr-2"></i>
+                    Réservation de billet
                 </h3>
             </div>
 
-            <form method="post" action="/billets/acheter">
+            <form method="post" action="/reservations/reserver">
                 <div class="card-body">
                     <!-- Film -->
                     <div class="form-group">
@@ -80,18 +80,60 @@
                         <small class="form-text text-muted">Choisissez le type de tarif.</small>
                     </div>
 
+                    <!-- Nombre de billets -->
+                    <div class="form-group">
+                        <label for="nombreBillets">Nombre de billets <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-ticket-alt"></i></span>
+                            </div>
+                            <input type="number" 
+                                   name="nombreBillets" 
+                                   id="nombreBillets" 
+                                   class="form-control" 
+                                   value="1" 
+                                   min="1" 
+                                   max="10" 
+                                   required>
+                        </div>
+                        <small class="form-text text-muted">Nombre de billets à réserver (1-10).</small>
+                    </div>
+
+                    <!-- Date de réservation -->
+                    <div class="form-group">
+                        <label for="dateReservation">Date de réservation <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            </div>
+                            <input type="datetime-local" 
+                                   name="dateReservation" 
+                                   id="dateReservation" 
+                                   class="form-control" 
+                                   required>
+                        </div>
+                        <small class="form-text text-muted">Indiquez la date et l'heure à laquelle la réservation a été effectuée.</small>
+                    </div>
+
                     <!-- Affichage du prix -->
                     <div id="affichagePrix" style="display: none;" class="alert alert-info">
-                        <strong><i class="fas fa-info-circle mr-2"></i>Prix :</strong> <span id="prixValeur">0.00</span> €
+                        <strong><i class="fas fa-info-circle mr-2"></i>Prix :</strong> <span id="prixValeur">0.00</span> € 
+                        <span id="prixDetail" style="font-size: 0.9rem;"></span>
+                    </div>
+
+                    <!-- Information -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Information :</strong> La réservation sera enregistrée à la date indiquée.
                     </div>
                 </div>
 
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-shopping-cart mr-2"></i>
-                        Acheter
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        Réserver
                     </button>
-                    <a href="/billets" class="btn btn-secondary ml-2">
+                    <a href="/reservations" class="btn btn-secondary ml-2">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Annuler
                     </a>
@@ -106,18 +148,16 @@ document.getElementById('film').addEventListener('change', function() {
     const filmId = this.value;
     const seanceSelect = document.getElementById('seance');
     
-    // Vérifier que filmId est défini et non vide
     if (!filmId || filmId.trim() === '') {
         seanceSelect.innerHTML = '<option value="">-- Sélectionnez d\'abord un film --</option>';
         seanceSelect.disabled = true;
         return;
     }
 
-    // Charger les séances pour ce film
-    fetch(`/billets/api/seances-par-film/`+filmId)
+    fetch('/billets/api/seances-par-film/'+filmId)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Erreur ${response.status}`);
+                throw new Error('Erreur '+response.status);
             }
             return response.json();
         })
@@ -133,7 +173,7 @@ document.getElementById('film').addEventListener('change', function() {
             seances.forEach(seance => {
                 const option = document.createElement('option');
                 option.value = seance.id;
-                option.textContent = seance.debut + '/' + seance.fin + ' - Salle ' + seance.id;
+                option.textContent = seance.debut + '/' + seance.fin + ' - Salle ' + seance.salleId;
                 seanceSelect.appendChild(option);
             });
             
@@ -146,19 +186,46 @@ document.getElementById('film').addEventListener('change', function() {
         });
 });
 
-// Affichage du prix du tarif
 document.getElementById('tarif').addEventListener('change', function() {
-    const option = this.options[this.selectedIndex];
-    const prix = option.getAttribute('data-prix');
+    calculerPrixTotal();
+});
+
+document.getElementById('nombreBillets').addEventListener('change', function() {
+    calculerPrixTotal();
+});
+
+function calculerPrixTotal() {
+    const tarifSelect = document.getElementById('tarif');
+    const nombreSelect = document.getElementById('nombreBillets');
     const affichagePrix = document.getElementById('affichagePrix');
     const prixValeur = document.getElementById('prixValeur');
+    const prixDetail = document.getElementById('prixDetail');
     
-    if (!prix || this.value === '') {
+    const option = tarifSelect.options[tarifSelect.selectedIndex];
+    const prix = option.getAttribute('data-prix');
+    const nombre = parseInt(nombreSelect.value) || 1;
+    
+    if (!prix || tarifSelect.value === '' || nombre < 1) {
         affichagePrix.style.display = 'none';
         return;
     }
     
-    prixValeur.textContent = parseFloat(prix).toFixed(2);
+    const prixUnitaire = parseFloat(prix);
+    const prixTotal = prixUnitaire * nombre;
+    
+    prixValeur.textContent = prixTotal.toFixed(2);
+    prixDetail.textContent = '(' + prixUnitaire.toFixed(2) + ' € × ' + nombre + ')';
     affichagePrix.style.display = 'block';
-});
+}
+
+// Pré-remplir avec la date actuelle
+const dateInput = document.getElementById('dateReservation');
+const now = new Date();
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const day = String(now.getDate()).padStart(2, '0');
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+const currentDateTime = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+dateInput.value = currentDateTime;
 </script>

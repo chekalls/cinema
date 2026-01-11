@@ -59,27 +59,27 @@ ALTER TABLE IF EXISTS public.l_genre_film
     ON DELETE NO ACTION
     NOT VALID;
 
-ALTER TABLE IF EXISTS public.sceance DROP CONSTRAINT IF EXISTS sceance_film_id_fkey;
+ALTER TABLE IF EXISTS public.seance DROP CONSTRAINT IF EXISTS seance_film_id_fkey;
 
-ALTER TABLE IF EXISTS public.sceance DROP CONSTRAINT IF EXISTS sceance_format_id_fkey;
+ALTER TABLE IF EXISTS public.seance DROP CONSTRAINT IF EXISTS seance_format_id_fkey;
 
-ALTER TABLE IF EXISTS public.sceance DROP CONSTRAINT IF EXISTS sceance_salle_id_fkey;
+ALTER TABLE IF EXISTS public.seance DROP CONSTRAINT IF EXISTS seance_salle_id_fkey;
 
-ALTER TABLE IF EXISTS public.sceance
+ALTER TABLE IF EXISTS public.seance
     ADD FOREIGN KEY (film_id)
     REFERENCES public.film (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
-ALTER TABLE IF EXISTS public.sceance
+ALTER TABLE IF EXISTS public.seance
     ADD FOREIGN KEY (salle_id)
     REFERENCES public.salle (id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
-ALTER TABLE IF EXISTS public.sceance
+ALTER TABLE IF EXISTS public.seance
     ADD FOREIGN KEY (format_id)
     REFERENCES public.referentiel (id) MATCH SIMPLE
     ON UPDATE NO ACTION
@@ -232,7 +232,7 @@ SELECT
     sp.nom as statut_place_nom
 FROM place p
 JOIN salle s ON p.salle_id = s.id
-JOIN sceance sc ON s.id = sc.salle_id
+JOIN seance sc ON s.id = sc.salle_id
 LEFT JOIN referentiel tp ON p.type_place_id = tp.id
 LEFT JOIN statut sp ON p.statut = sp.id
 WHERE s.id = $1                          
@@ -246,3 +246,23 @@ WHERE s.id = $1
         AND st.code IN ('PAYE', 'UTILISE')  
     )
 ORDER BY p.rang, p.col;
+
+CREATE SEQUENCE IF NOT EXISTS reservation_num_seq
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    NO MAXVALUE
+    CACHE 10;           -- bon compromis perf / risque de trous
+
+
+CREATE OR REPLACE FUNCTION generer_numero_reservation()
+RETURNS varchar(15) AS $$
+BEGIN
+    RETURN 'RES' || to_char(nextval('reservation_num_seq'), 'FM00000000000');
+    -- Résultat : RES00000000001 → RES00000065432 etc...
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
+ALTER TABLE reservation
+    ALTER COLUMN numero
+    SET DEFAULT generer_numero_reservation();

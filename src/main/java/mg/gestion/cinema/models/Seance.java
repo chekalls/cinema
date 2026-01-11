@@ -12,8 +12,8 @@ import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
 import mg.gestion.cinema.utils.CGenericUtils;
 
-@Table(name = "sceance")
-public class Sceance extends BaseEntity {
+@Table(name = "seance")
+public class Seance extends BaseEntity {
     @PrimaryKey
     private Integer id;
     @Column(name = "film_id")
@@ -94,16 +94,16 @@ public class Sceance extends BaseEntity {
         return places;
     }
 
-    public static List<Sceance> getProchainSceancesFilm(Connection conn, Film film) {
-        String sql = "SELECT * FROM sceance WHERE debut >= now() AND film_id = ? ORDER BY debut ASC";
-        List<Sceance> sceances = CGenericUtils.executeQuery(conn, Sceance.class, sql, film.getId());
-        return sceances;
+    public static List<Seance> getProchainSeancesFilm(Connection conn, Film film) {
+        String sql = "SELECT * FROM seance WHERE debut >= now() AND film_id = ? ORDER BY debut ASC";
+        List<Seance> seances = CGenericUtils.executeQuery(conn, Seance.class, sql, film.getId());
+        return seances;
     }
 
-    public static List<Sceance> getProchainSceances(Connection conn, LocalDate date) {
-        String sql = "SELECT * FROM sceance WHERE debut >= ? ORDER BY debut ASC";
-        List<Sceance> sceances = CGenericUtils.executeQuery(conn, Sceance.class, sql, date);
-        return sceances;
+    public static List<Seance> getProchainSeances(Connection conn, LocalDate date) {
+        String sql = "SELECT * FROM seance WHERE debut >= ? ORDER BY debut ASC";
+        List<Seance> seances = CGenericUtils.executeQuery(conn, Seance.class, sql, date);
+        return seances;
     }
 
     @Loader

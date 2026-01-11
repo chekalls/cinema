@@ -82,25 +82,25 @@
                                             <c:choose>
                                                 <c:when test="${place != null}">
                                                     <c:choose>
-                                                        <c:when test="${place.statut == 10}">
+                                                        <c:when test="${place.statut == 4}">
                                                             <!-- Disponible -->
                                                             <span class="badge badge-success" style="cursor: pointer;" title="Place ${rang}-${col}: Disponible">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 15}">
+                                                        <c:when test="${place.statut == 5}">
                                                             <!-- En sélection -->
                                                             <span class="badge badge-warning" style="cursor: pointer;" title="Place ${rang}-${col}: En sélection">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 20}">
+                                                        <c:when test="${place.statut == 6}">
                                                             <!-- Réservée -->
                                                             <span class="badge badge-info" style="cursor: pointer;" title="Place ${rang}-${col}: Réservée">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
-                                                        <c:when test="${place.statut == 30}">
+                                                        <c:when test="${place.statut == 7}">
                                                             <!-- Vendue -->
                                                             <span class="badge badge-danger" style="cursor: pointer;" title="Place ${rang}-${col}: Vendue">
                                                                 <i class="fas fa-chair"></i>

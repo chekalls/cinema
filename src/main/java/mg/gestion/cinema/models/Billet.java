@@ -1,8 +1,11 @@
 package mg.gestion.cinema.models;
 
+import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
+import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
 
@@ -26,6 +29,35 @@ public class Billet extends BaseEntity{
     private Integer reservationId;
     @Column
     private Integer statut;
+
+    @Column(ignore = true)
+    private Statut statutDetails;
+
+    @Column(ignore = true)
+    private Seance seance;
+
+    @Column(ignore = true)
+    private Place place;
+
+    @Column(ignore = true)
+    private Tarif tarif;
+
+    @Loader
+    public void loadAttributes(Connection conn){
+        if(this.statut != null){
+            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Statut.class,Map.of("id",this.statut));
+        }
+        if(this.seanceId != null){
+            this.seance = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Seance.class,Map.of("id",this.seanceId),true);
+        }
+        if(this.placeId != null){
+            this.place = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Place.class,Map.of("id",this.placeId));
+        }
+        if(this.tarifId != null){
+            this.tarif = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Tarif.class,Map.of("id",this.tarifId));
+        }
+    }
+
     public Integer getId() {
         return id;
     }
@@ -80,4 +112,36 @@ public class Billet extends BaseEntity{
    }
    public void setReservationId(Integer reservationId) {
     this.reservationId = reservationId;
+   }
+
+   public Statut getStatutDetails() {
+    return statutDetails;
+   }
+
+   public void setStatutDetails(Statut statutDetails) {
+    this.statutDetails = statutDetails;
+   }
+
+   public Seance getSeance() {
+    return seance;
+   }
+
+   public void setSeance(Seance seance) {
+    this.seance = seance;
+   }
+
+   public Place getPlace() {
+    return place;
+   }
+
+   public void setPlace(Place place) {
+    this.place = place;
+   }
+
+   public Tarif getTarif() {
+    return tarif;
+   }
+
+   public void setTarif(Tarif tarif) {
+    this.tarif = tarif;
    }}

@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form action="/sceances/view/${sceance.id}" method="get" class="form-inline">
+                <form action="/seances/view/${seance.id}" method="get" class="form-inline">
                     <div class="form-group mr-3">
                         <label for="dateFilter" class="mr-2">
                             <i class="fas fa-clock mr-1"></i>
@@ -58,7 +58,7 @@
                         <i class="fas fa-search mr-1"></i>
                         Appliquer
                     </button>
-                    <a href="/sceances/view/${sceance.id}" class="btn btn-default">
+                    <a href="/seances/view/${seance.id}" class="btn btn-default">
                         <i class="fas fa-redo mr-1"></i>
                         Réinitialiser
                     </a>
@@ -81,8 +81,8 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-eye mr-2"></i> Détails de la séance</h3>
                 <div class="card-tools">
-                    <a href="/sceances/edit/${sceance.id}" class="btn btn-light btn-sm"><i class="fas fa-edit mr-1"></i> Modifier</a>
-                    <a href="/sceances" class="btn btn-light btn-sm"><i class="fas fa-list mr-1"></i> Liste</a>
+                    <a href="/seances/edit/${seance.id}" class="btn btn-light btn-sm"><i class="fas fa-edit mr-1"></i> Modifier</a>
+                    <a href="/seances" class="btn btn-light btn-sm"><i class="fas fa-list mr-1"></i> Liste</a>
                 </div>
             </div>
 
@@ -95,7 +95,7 @@
                                 <span class="info-box-text">Film</span>
                                 <span class="info-box-number">
                                     <c:choose>
-                                        <c:when test="${sceance.film != null}">${sceance.film.titre}</c:when>
+                                        <c:when test="${seance.film != null}">${seance.film.titre}</c:when>
                                         <c:otherwise>-</c:otherwise>
                                     </c:choose>
                                 </span>
@@ -109,8 +109,8 @@
                                 <span class="info-box-text">Salle</span>
                                 <span class="info-box-number">
                                     <c:choose>
-                                        <c:when test="${sceance.salle != null}">${sceance.salle.designation}</c:when>
-                                        <c:otherwise>${sceance.salleId}</c:otherwise>
+                                        <c:when test="${seance.salle != null}">${seance.salle.designation}</c:when>
+                                        <c:otherwise>${seance.salleId}</c:otherwise>
                                     </c:choose>
                                 </span>
                             </div>
@@ -126,8 +126,8 @@
                                 <span class="info-box-text">Début</span>
                                 <span class="info-box-number">
                                     <c:choose>
-                                        <c:when test="${sceance.debut != null}">
-                                            <spring:eval expression="T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm').format(sceance.debut)" />
+                                        <c:when test="${seance.debut != null}">
+                                            <spring:eval expression="T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm').format(seance.debut)" />
                                         </c:when>
                                         <c:otherwise>-</c:otherwise>
                                     </c:choose>
@@ -142,8 +142,8 @@
                                 <span class="info-box-text">Fin</span>
                                 <span class="info-box-number">
                                     <c:choose>
-                                        <c:when test="${sceance.fin != null}">
-                                            <spring:eval expression="T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm').format(sceance.fin)" />
+                                        <c:when test="${seance.fin != null}">
+                                            <spring:eval expression="T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm').format(seance.fin)" />
                                         </c:when>
                                         <c:otherwise>-</c:otherwise>
                                     </c:choose>
@@ -155,18 +155,18 @@
             </div>
 
             <div class="card-footer">
-                <a href="/sceances/edit/${sceance.id}" class="btn btn-info"><i class="fas fa-edit mr-1"></i> Modifier</a>
-                <a href="/sceances" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i> Retour</a>
+                <a href="/seances/edit/${seance.id}" class="btn btn-info"><i class="fas fa-edit mr-1"></i> Modifier</a>
+                <a href="/seances" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i> Retour</a>
             </div>
         </div>
 
         <!-- Plan de la salle -->
-        <c:if test="${sceance.salle != null && not empty places}">
+        <c:if test="${seance.salle != null && not empty places}">
         <div class="card card-success card-outline">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-chair mr-2"></i>
-                    Plan de la salle - ${sceance.salle.designation}
+                    Plan de la salle - ${seance.salle.designation}
                 </h3>
             </div>
             <div class="card-body">
@@ -175,16 +175,16 @@
                         <thead>
                             <tr>
                                 <th style="width: 30px;">Rg</th>
-                                <c:forEach begin="1" end="${sceance.salle.nbColonnes}" var="col">
+                                <c:forEach begin="1" end="${seance.salle.nbColonnes}" var="col">
                                     <th style="width: 30px;">${col}</th>
                                 </c:forEach>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach begin="1" end="${sceance.salle.nbRangees}" var="rang">
+                            <c:forEach begin="1" end="${seance.salle.nbRangees}" var="rang">
                                 <tr>
                                     <td style="font-weight: bold;">${rang}</td>
-                                    <c:forEach begin="1" end="${sceance.salle.nbColonnes}" var="col">
+                                    <c:forEach begin="1" end="${seance.salle.nbColonnes}" var="col">
                                         <c:set var="place" value="${null}" />
                                         <c:forEach items="${places}" var="p">
                                             <c:if test="${p.rang == rang && p.col == col}">
@@ -284,14 +284,14 @@
                     </div>
                 </div>
 
-                <c:if test="${sceance.salle != null}">
+                <c:if test="${seance.salle != null}">
                 <div class="info-box bg-light">
                     <span class="info-box-icon bg-info">
                         <i class="fas fa-users"></i>
                     </span>
                     <div class="info-box-content">
                         <span class="info-box-text">Capacité totale</span>
-                        <span class="info-box-number">${sceance.salle.capaciteTotal}</span>
+                        <span class="info-box-number">${seance.salle.capaciteTotal}</span>
                     </div>
                 </div>
 
@@ -302,7 +302,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">Taux de remplissage</span>
                         <span class="info-box-number">
-                            <c:set var="taux" value="${(billets.size() * 100.0) / sceance.salle.capaciteTotal}" />
+                            <c:set var="taux" value="${(billets.size() * 100.0) / seance.salle.capaciteTotal}" />
                             <c:out value="${String.format('%.1f', taux)}" />%
                         </span>
                     </div>
@@ -320,11 +320,11 @@
                 </h3>
             </div>
             <div class="card-body">
-                <a href="/billets/achatForm?seanceId=${sceance.id}" class="btn btn-primary btn-block mb-2">
+                <a href="/billets/achatForm?seanceId=${seance.id}" class="btn btn-primary btn-block mb-2">
                     <i class="fas fa-ticket-alt mr-2"></i>
                     Acheter un billet
                 </a>
-                <a href="/sceances/edit/${sceance.id}" class="btn btn-info btn-block mb-2">
+                <a href="/seances/edit/${seance.id}" class="btn btn-info btn-block mb-2">
                     <i class="fas fa-edit mr-2"></i>
                     Modifier la séance
                 </a>
@@ -362,7 +362,7 @@
                     <i class="fas fa-times mr-1"></i>
                     Annuler
                 </button>
-                <form action="/sceances/delete/${sceance.id}" method="post" style="display: inline;">
+                <form action="/seances/delete/${seance.id}" method="post" style="display: inline;">
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash mr-1"></i>
                         Supprimer définitivement

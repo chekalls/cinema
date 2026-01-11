@@ -2,19 +2,19 @@
 <%@ page import="mg.gestion.cinema.models.Film" %>
 <%@ page import="mg.gestion.cinema.models.GenreFilm" %>
 <%@ page import="mg.gestion.cinema.models.Salle" %>
-<%@ page import="mg.gestion.cinema.models.Sceance" %>
+<%@ page import="mg.gestion.cinema.models.Seance" %>
 <%@ page import="java.util.List" %>
 <%
 
     String error = (String) request.getAttribute("error");
 
-    Sceance sceance = (Sceance) request.getAttribute("sceance");
+    Seance seance = (Seance) request.getAttribute("seance");
     List<Film> films = (List<Film>) request.getAttribute("films");
     List<Salle> salles = (List<Salle>) request.getAttribute("salles");
 
-    boolean isEdit = (sceance != null && sceance.getId() != null);
+    boolean isEdit = (seance != null && seance.getId() != null);
 
-    String formAction = isEdit ? "/sceances/update" : "/sceances/save";
+    String formAction = isEdit ? "/seances/update" : "/seances/save";
 %>
 
 <% if (error != null && !error.isEmpty()) { %>
@@ -43,7 +43,7 @@
                 <div class="card-body">
 
                     <input type="hidden" name="id"
-                           value="<%= isEdit ? sceance.getId() : "" %>"/>
+                           value="<%= isEdit ? seance.getId() : "" %>"/>
 
                     <!-- Film -->
                     <div class="form-group">
@@ -54,7 +54,7 @@
                                 if (films != null) {
                                     for (Film film : films) {
                                         boolean selected =
-                                                isEdit && film.getId().equals(sceance.getFilmId());
+                                                isEdit && film.getId().equals(seance.getFilmId());
                             %>
                             <option value="<%= film.getId() %>"
                                     <%= selected ? "selected" : "" %>>
@@ -77,7 +77,7 @@
                                 if (salles != null) {
                                     for (Salle salle : salles) {
                                         boolean selected =
-                                                isEdit && salle.getId().equals(sceance.getSalleId());
+                                                isEdit && salle.getId().equals(seance.getSalleId());
                             %>
                             <option value="<%= salle.getId() %>"
                                     <%= selected ? "selected" : "" %>>
@@ -98,7 +98,7 @@
                                name="debut"
                                id="debut"
                                class="form-control"
-                               value="<%= isEdit && sceance.getDebut() != null ? sceance.getDebut() : "" %>"/>
+                               value="<%= isEdit && seance.getDebut() != null ? seance.getDebut() : "" %>"/>
                         <small class="form-text text-muted">
                             Format attendu: ISO-8601 (ex: 2025-01-15T19:30).
                         </small>
@@ -111,7 +111,7 @@
                                name="fin"
                                id="fin"
                                class="form-control"
-                               value="<%= isEdit && sceance.getFin() != null ? sceance.getFin() : "" %>"/>
+                               value="<%= isEdit && seance.getFin() != null ? seance.getFin() : "" %>"/>
                         <small class="form-text text-muted">
                             Format attendu: ISO-8601 (ex: 2025-01-15T21:15). laisser vide pour utiliser la fin du film
                         </small>
@@ -123,7 +123,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save mr-1"></i> Enregistrer
                     </button>
-                    <a href="/sceances" class="btn btn-default">
+                    <a href="/seances" class="btn btn-default">
                         <i class="fas fa-arrow-left mr-1"></i> Retour
                     </a>
                 </div>

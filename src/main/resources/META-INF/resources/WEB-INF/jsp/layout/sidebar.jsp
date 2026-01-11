@@ -74,13 +74,13 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="/sceances" class="nav-link">
+                            <a href="/seances" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Liste des séances</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/sceances/form" class="nav-link">
+                            <a href="/seances/form" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Ajouter une séance</p>
                             </a>
@@ -121,10 +121,10 @@
                     </a>
                 </li>
 
-               <!-- Billet -->
+                <!-- Billets -->
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-building"></i>
+                        <i class="nav-icon fas fa-ticket-alt"></i>
                         <p>
                             Billets
                             <i class="right fas fa-angle-left"></i>
@@ -133,28 +133,43 @@
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="/billets" class="nav-link">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>liste des billets</p>
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Liste des billets</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="/billets/achatForm" class="nav-link">
-                                <i class="nav-icon fas fa-plus-circle"></i>
+                                <i class="far fa-circle nav-icon"></i>
                                 <p>Acheter un billet</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="/reservations" class="nav-link">
-                                <i class="nav-icon fas fa-ticket-alt"></i>
-                                <p>Réservations</p>
                             </a>
                         </li>
                     </ul>
                 </li>
 
-
-
+                <!-- Réservations -->
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-calendar-check"></i>
+                        <p>
+                            Réservations
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/reservations" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Liste des réservations</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/reservations/form" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Faire une réservation</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
                 <li class="nav-header">ADMINISTRATION</li>
                 <li class="nav-item">

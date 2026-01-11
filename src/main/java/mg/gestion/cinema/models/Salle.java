@@ -1,6 +1,7 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.PrimaryKey;
@@ -47,13 +48,15 @@ public class Salle extends BaseEntity {
             throw new IllegalStateException("La salle doit être sauvegardée avant de créer les places");
         }
 
+        Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code","DISPO","categorie","PLACE"));
+
         for (int rang = 1; rang <= tailleRang; rang++) {
             for (int col = 1; col <= tailleCol; col++) {
                 Place place = new Place();
                 place.setSalleId(this.id);
                 place.setRang(rang);
                 place.setCol(col);
-                place.setStatut(10);
+                place.setStatut(statutPlace.getId());
                 CGenericUtils.save(conn, place);
             }
         }

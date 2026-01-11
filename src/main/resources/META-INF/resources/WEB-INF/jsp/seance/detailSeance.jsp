@@ -3,7 +3,7 @@
 
 <%
     request.setAttribute("title", "Détails de la séance - Gestion Cinéma");
-    request.setAttribute("contentPage", "/WEB-INF/jsp/sceance/detailSceanceContent.jsp");
+    request.setAttribute("contentPage", "/WEB-INF/jsp/seance/detailSeanceContent.jsp");
 %>
 
 <jsp:forward page="/WEB-INF/jsp/layout/main.jsp" />
