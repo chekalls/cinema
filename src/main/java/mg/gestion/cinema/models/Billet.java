@@ -51,7 +51,7 @@ public class Billet extends BaseEntity{
             this.seance = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Seance.class,Map.of("id",this.seanceId),true);
         }
         if(this.placeId != null){
-            this.place = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Place.class,Map.of("id",this.placeId));
+            this.place = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Place.class,Map.of("id",this.placeId),true);
         }
         if(this.tarifId != null){
             this.tarif = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Tarif.class,Map.of("id",this.tarifId));

@@ -272,6 +272,11 @@
                         <span class="info-box-text">Places disponibles</span>
                         <span class="info-box-number">${disponible}</span>
                     </div>
+
+                     <div class="info-box-content">
+                                            <span class="info-box-text">solde max</span>
+                                            <span class="info-box-number">${solde}</span>
+                                        </div>
                 </div>
 
                 <div class="info-box bg-light">

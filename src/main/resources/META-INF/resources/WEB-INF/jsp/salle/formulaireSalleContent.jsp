@@ -106,17 +106,37 @@
                                             placeholder="Ex: 150" >
                                     </div>
                                 </div>
+                            </div>
 
+
+                            <div class="row">
                                 <div class="form-group col-md-4">
-                                    <label for="nbRangees">Nombre de rangées</label>
-                                    <input type="number" class="form-control" id="nbRangees" name="nbRangees"
-                                        value="${salle.nbRangees}" min="1" placeholder="Ex: 12">
+                                    <label for="capaciteTotal">Capacité VIP <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                        </div>
+                                        <input type="number" class="form-control" id="capaciteTotal"
+                                            name="capaciteVIP" value="${salle.capaciteTotal}" min="1"
+                                            placeholder="Ex: 150" >
+                                    </div>
                                 </div>
+                            </div>
 
+
+                            <div class="row">
                                 <div class="form-group col-md-4">
-                                    <label for="nbColonnes">Places par rangée</label>
-                                    <input type="number" class="form-control" id="nbColonnes" name="nbColonnes"
-                                        value="${salle.nbColonnes}" min="1" placeholder="Ex: 10">
+                                    <label for="capaciteTotal">Capacité standart <span
+                                            class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                        </div>
+                                        <input type="number" class="form-control" id="capaciteTotal"
+                                            name="capacitestandart" value="${salle.capaciteTotal}" min="1"
+                                            placeholder="Ex: 150" >
+                                    </div>
                                 </div>
                             </div>
 

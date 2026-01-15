@@ -2,12 +2,14 @@ package mg.gestion.cinema.models;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
+import mg.gestion.cinema.utils.CGenericUtils;
 
 @Table(name = "place")
 public class Place extends BaseEntity {
@@ -31,6 +33,12 @@ public class Place extends BaseEntity {
 
     @Column(ignore = true)
     private Statut statutDetails;
+
+    public int statutPlace(Connection conn ,LocalDateTime dateFin){
+        String sql="SELECT * FROM historique WHERE date_modification < ? order by date_modification desc";
+        List<Historique> statutList = CGenericUtils.executeQuery(conn, Historique.class ,sql ,dateFin);
+        return statutList.get(0).getStatut();
+    }
 
     @Loader
     public void loadAttributes(Connection conn){

@@ -1,6 +1,9 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
@@ -31,6 +34,11 @@ public class Salle extends BaseEntity {
     @Column(name = "nb_colonnes")
     private Integer nbColonnes;
 
+    @Column(ignore = true)
+    private Integer nbrVip;
+    @Column(ignore = true)
+    private Integer nbrStanart;
+
     public void setAutoNbRangeesAndColonnes(Connection conn) {
         if (this.capaciteTotal == null || this.capaciteTotal <= 0) {
             throw new IllegalArgumentException("La capacité totale doit être un entier positif");
@@ -43,7 +51,7 @@ public class Salle extends BaseEntity {
         this.nbColonnes = tailleCol;
     }
 
-    public void insererPlace(int tailleCol, int tailleRang, Connection conn) {
+    public void insererPlace(int tailleCol, int tailleRang, Connection conn){
         if (this.id == null) {
             throw new IllegalStateException("La salle doit être sauvegardée avant de créer les places");
         }
@@ -61,6 +69,54 @@ public class Salle extends BaseEntity {
             }
         }
     }
+    public double getSoldeMaxGenererBySalle(Connection conn, LocalDateTime dateDebut, LocalDateTime dateFin, int idFilm) {
+        String sql = "SELECT * FROM seance WHERE film_id = ? AND salle_id = ? AND fin >= ? AND fin < ?";
+        List<Seance> seanceList = CGenericUtils.executeQuery(conn, Seance.class, sql, idFilm, this.getId(), dateDebut, dateFin);
+        List<Double> prixBySeance = new ArrayList<>();
+        for (Seance seance : seanceList) {
+            prixBySeance.add(seance.getSoldeGenerer(conn));
+        }
+        return prixBySeance.stream()
+                .max(Double::compare)
+                .orElse(1.0);
+        // Retourne le maximum ou 0 si la liste est vide
+
+    }
+
+
+
+
+    public void insererPlace(int tailleCol, int tailleRang, Connection conn,int idTypeSalle){
+        if (this.id == null) {
+            throw new IllegalStateException("La salle doit être sauvegardée avant de créer les places");
+        }
+
+        Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code","DISPO","categorie","PLACE"));
+        TypePlace typePlace=CGenericUtils.findOne(conn, TypePlace.class, Map.of("id",idTypeSalle));
+
+        for (int rang = 1; rang <= tailleRang; rang++) {
+            for (int col = 1; col <= tailleCol; col++) {
+                Place place = new Place();
+                place.setSalleId(this.id);
+                place.setRang(rang);
+                place.setCol(col);
+                place.setTypePlaceId(idTypeSalle);
+                place.setStatut(statutPlace.getId());
+                CGenericUtils.save(conn, place);
+            }
+        }
+    }
+
+    public double getValeurMaexGenerer(Connection conn){
+        List<Place> placeList=CGenericUtils.find(conn, Place.class, Map.of("salle_id",this.getId()),true);
+        double resutt=0;
+        for (Place place : placeList) {
+            resutt +=place.getTypePlace().getPrix();
+        }
+        return resutt;
+    }
+
+
 
     public Integer getId() {
         return id;

@@ -1,6 +1,7 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,10 +11,16 @@ import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
+import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
+import mg.gestion.cinema.utils.ConnexionManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Table(name = "seance")
 public class Seance extends BaseEntity {
+
+    @Autowired
+    private ConnexionService connServ;
     @PrimaryKey
     private Integer id;
     @Column(name = "film_id")
@@ -32,6 +39,8 @@ public class Seance extends BaseEntity {
 
     @Column(ignore = true)
     private Salle salle;
+    @Column(ignore = true)
+    private  double solde;
 
     public List<Billet> getBillets(Connection conn, LocalDateTime date) {
         String sql = "SELECT * FROM billet WHERE seance_id = ? AND date_achat <= ? ORDER BY date_achat ASC";
@@ -106,6 +115,32 @@ public class Seance extends BaseEntity {
         return seances;
     }
 
+    public  double getSoldeGenerer(Connection conn){
+        List<Billet> billets = CGenericUtils.find(conn,Billet.class,Map.of("seance_id",this.getId() ,"statut",17),true);
+        //List<Place> placeList1=CGenericUtils.find(conn, Place.class, null,true);
+        //List<Place> placeList2=CGenericUtils.find(conn, Place.class, Map.of("salle_id",this.getSalleId(),"statut",7),true);
+        //placeList1.addAll(placeList2);
+        double result=0;
+        for (Billet billet : billets) {
+            result +=billet.getPlace().getTypePlace().getPrix();
+        }
+        return result;
+    }
+
+    public  double getSoldeGenerer(){
+        Connection conn= DriverManager.getConnection();
+        List<Billet> billets = CGenericUtils.find(conn,Billet.class,Map.of("seance_id",this.getId() ,"statut",17),true);
+        //List<Place> placeList1=CGenericUtils.find(conn, Place.class, null,true);
+        //List<Place> placeList2=CGenericUtils.find(conn, Place.class, Map.of("salle_id",this.getSalleId(),"statut",7),true);
+        //placeList1.addAll(placeList2);
+        double result=0;
+        for (Billet billet : billets) {
+            result +=billet.getPlace().getTypePlace().getPrix();
+        }
+        return result;
+    }
+
+
     @Loader
     private void loadAttributes(Connection conn) {
         if (this.filmId != null) {
@@ -114,6 +149,15 @@ public class Seance extends BaseEntity {
         if (this.salleId != null) {
             this.salle = (Salle) new Salle().findOne(conn, java.util.Collections.singletonMap("id", this.salleId));
         }
+        try {
+            if (this.getId()!=null){
+                solde=this.getSoldeGenerer(conn);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     public void setDebutFin(Film film) {
@@ -181,5 +225,9 @@ public class Seance extends BaseEntity {
 
     public void setSalle(Salle salle) {
         this.salle = salle;
+    }
+
+    public double getSolde() {
+        return solde;
     }
 }

@@ -1,10 +1,12 @@
 package mg.gestion.cinema.controller;
 
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mg.gestion.cinema.utils.DataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -133,7 +135,7 @@ public class SalleController {
                     salle.setAutoNbRangeesAndColonnes(conn);
                 }
 
-                salle.insererPlace(salle.getNbColonnes(), salle.getNbRangees(), conn);
+                //salle.insererPlace(salle.getNbColonnes(), salle.getNbRangees(), conn,);
             });
 
             String message = isNew ? "Salle ajoutée avec succès" : "Salle modifiée avec succès";
@@ -188,6 +190,7 @@ public class SalleController {
             model.addAttribute("salle", salle);
             model.addAttribute("cinema", cinema);
             model.addAttribute("places",places);
+            model.addAttribute("nbrMaxGenerer",salle.getSoldeMaxGenererBySalle(conn, DataUtil.convertStringToDateTime("2024-01-15 09:00:00"), LocalDateTime.now(),1));
             return "salle/detailSalle";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement de la salle : " + e.getMessage());

@@ -61,6 +61,7 @@
                             <th>Salle</th>
                             <th>Début</th>
                             <th>Fin</th>
+                             <th>solde max</th>
                             <th style="width:150px">Actions</th>
                         </tr>
                         </thead>
@@ -101,6 +102,7 @@
                                         <c:otherwise>-</c:otherwise>
                                     </c:choose>
                                 </td>
+                                <td>${seance.getSolde()}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a href="/seances/edit/${seance.id}" class="btn btn-info" title="Modifier"><i class="fas fa-edit"></i></a>

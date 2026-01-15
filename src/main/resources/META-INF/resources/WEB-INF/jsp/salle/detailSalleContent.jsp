@@ -30,6 +30,9 @@
                     <dt class="col-sm-3"><i class="fas fa-users mr-2 text-muted"></i>Capacité</dt>
                     <dd class="col-sm-9">${salle.capaciteTotal} places</dd>
 
+                    <dt class="col-sm-3"><i class="fas fa-users mr-2 text-muted"></i>solde max</dt>
+                    <dd class="col-sm-9">${nbrMaxGenerer} Ar</dd>
+
                     <dt class="col-sm-3"><i class="fas fa-th mr-2 text-muted"></i>Configuration</dt>
                     <dd class="col-sm-9">
                         <span class="badge badge-info">${salle.nbRangees} rangées</span>
