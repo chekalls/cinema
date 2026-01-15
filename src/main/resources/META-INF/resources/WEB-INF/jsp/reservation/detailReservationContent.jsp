@@ -106,7 +106,6 @@
             </div>
         </div>
 
-        <!-- Détails des Billets -->
         <c:if test="${not empty billets}">
             <div class="row">
                 <div class="col-12">
