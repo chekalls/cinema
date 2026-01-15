@@ -6,7 +6,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-info">
             <div class="inner">
-                <h3>150</h3>
+                <h3>${nbFilms}</h3>
                 <p>Films</p>
             </div>
             <div class="icon">
@@ -21,7 +21,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-success">
             <div class="inner">
-                <h3>53</h3>
+                <h3>${nbSeances}</h3>
                 <p>Séances aujourd'hui</p>
             </div>
             <div class="icon">
@@ -36,7 +36,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-warning">
             <div class="inner">
-                <h3>44</h3>
+                <h3>${nbReservations}</h3>
                 <p>Réservations</p>
             </div>
             <div class="icon">
@@ -51,7 +51,7 @@
     <div class="col-lg-3 col-6">
         <div class="small-box bg-danger">
             <div class="inner">
-                <h3>8</h3>
+                <h3>${nbSalles}</h3>
                 <p>Salles</p>
             </div>
             <div class="icon">

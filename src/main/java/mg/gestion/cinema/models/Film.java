@@ -53,9 +53,9 @@ public class Film extends BaseEntity {
 
             for (LGenreFilm lGenreFilm : lgenres) {
                 if (CGenericUtils.exist(connection, GenreFilm.class, lGenreFilm.getGenreFilmId())) {
-                    GenreFilm genre = (GenreFilm) CGenericUtils.findOne(connection, GenreFilm.class,
-                            Collections.singletonMap("id", lGenreFilm.getGenreFilmId()));
-                    genres.add(genre);
+                    GenreFilm genre = (GenreFilm) new GenreFilm()
+                            .findOne(connection, lGenreFilm.getGenreFilmId());
+                    this.genres.add(genre);
                 }
             }
 

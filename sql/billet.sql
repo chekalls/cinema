@@ -1,6 +1,6 @@
 CREATE TABLE billet (
     id SERIAL PRIMARY KEY,
-    seance_id BIGINT NOT NULL REFERENCES sceance(id) ON DELETE RESTRICT,
+    seance_id BIGINT NOT NULL REFERENCES seance(id) ON DELETE RESTRICT,
     prix_paye DECIMAL(10,2) NOT NULL,
     type_tarif VARCHAR(50),
     statut VARCHAR(20) DEFAULT 'valide', 

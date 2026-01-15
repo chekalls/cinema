@@ -20,6 +20,7 @@ import mg.gestion.cinema.annotation.Generated;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.models.BaseEntity;
+import mg.gestion.cinema.models.Referentiel;
 
 public class CGenericUtils {
 
@@ -246,9 +247,19 @@ public class CGenericUtils {
             }
 
             StringBuilder query = new StringBuilder(ClassUtils.buildQueryFromClass(clazz));
+            List<Object> params = new ArrayList<>();
+
+            // If Referentiel subclass, always filter by categorie
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    query.append(" WHERE categorie = ?");
+                    params.add(categorie);
+                }
+            }
 
             if (search != null && !search.isBlank() && !searchableFields.isEmpty()) {
-                query.append(" WHERE ");
+                query.append(query.indexOf(" WHERE ") >= 0 ? " AND " : " WHERE ");
                 for (int i = 0; i < searchableFields.size(); i++) {
                     if (i > 0) {
                         query.append(" OR ");
@@ -259,10 +270,14 @@ public class CGenericUtils {
             }
 
             try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+                int paramIndex = 1;
+                for (Object p : params) {
+                    pstmt.setObject(paramIndex++, p);
+                }
                 if (search != null && !search.isBlank()) {
                     String pattern = "%" + search.trim() + "%";
                     for (int i = 0; i < searchableFields.size(); i++) {
-                        pstmt.setString(i + 1, pattern);
+                        pstmt.setString(paramIndex++, pattern);
                     }
                 }
 
@@ -304,8 +319,20 @@ public class CGenericUtils {
 
         try {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
-            List<Map.Entry<String, Object>> orderedCriteria = (searchCriteria != null && !searchCriteria.isEmpty())
-                    ? new ArrayList<>(searchCriteria.entrySet())
+            Map<String, Object> effectiveCriteria = (searchCriteria != null) ? new HashMap<>(searchCriteria)
+                    : new HashMap<>();
+
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
+                    && !effectiveCriteria.containsKey("categorie")) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    effectiveCriteria.put("categorie", categorie);
+                }
+            }
+
+            List<Map.Entry<String, Object>> orderedCriteria = (!effectiveCriteria.isEmpty())
+                    ? new ArrayList<>(effectiveCriteria.entrySet())
                     : Collections.emptyList();
 
             List<Field> resolvedFields = new ArrayList<>(orderedCriteria.size());
@@ -388,8 +415,19 @@ public class CGenericUtils {
 
         try {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
-            List<Map.Entry<String, Object>> orderedCriteria = (criteria != null && !criteria.isEmpty())
-                    ? new ArrayList<>(criteria.entrySet())
+            Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
+
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
+                    && !effectiveCriteria.containsKey("categorie")) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    effectiveCriteria.put("categorie", categorie);
+                }
+            }
+
+            List<Map.Entry<String, Object>> orderedCriteria = (!effectiveCriteria.isEmpty())
+                    ? new ArrayList<>(effectiveCriteria.entrySet())
                     : Collections.emptyList();
 
             List<Field> resolvedFields = new ArrayList<>(orderedCriteria.size());
@@ -464,8 +502,19 @@ public class CGenericUtils {
 
         try {
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
-            List<Map.Entry<String, Object>> orderedCriteria = (criteria != null && !criteria.isEmpty())
-                    ? new ArrayList<>(criteria.entrySet())
+            Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
+
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
+                    && !effectiveCriteria.containsKey("categorie")) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    effectiveCriteria.put("categorie", categorie);
+                }
+            }
+
+            List<Map.Entry<String, Object>> orderedCriteria = (!effectiveCriteria.isEmpty())
+                    ? new ArrayList<>(effectiveCriteria.entrySet())
                     : Collections.emptyList();
 
             List<Field> resolvedFields = new ArrayList<>(orderedCriteria.size());
@@ -855,17 +904,28 @@ public class CGenericUtils {
             String tableName = ClassUtils.getTableName(clazz);
             StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ").append(tableName);
 
+            Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
+                    && !effectiveCriteria.containsKey("categorie")) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    effectiveCriteria.put("categorie", categorie);
+                }
+            }
+
             List<Object> parameters = new ArrayList<>();
-            if (criteria != null && !criteria.isEmpty()) {
+            if (!effectiveCriteria.isEmpty()) {
                 sql.append(" WHERE ");
                 Map<String, Field> fieldsByName = buildFieldLookup(clazz);
                 int count = 0;
-                for (Map.Entry<String, Object> entry : criteria.entrySet()) {
+                for (Map.Entry<String, Object> entry : effectiveCriteria.entrySet()) {
                     if (count > 0) {
                         sql.append(" AND ");
                     }
                     Field field = resolveField(fieldsByName, entry.getKey());
                     sql.append(ClassUtils.getFieldName(field)).append(" = ?");
+                
                     parameters.add(entry.getValue());
                     count++;
                 }
@@ -973,8 +1033,19 @@ public class CGenericUtils {
         try {
             String table = ClassUtils.getTableName(clazz);
             Map<String, Field> fieldsByName = buildFieldLookup(clazz);
-            List<Map.Entry<String, Object>> orderedCriteria = (criteria != null && !criteria.isEmpty())
-                    ? new ArrayList<>(criteria.entrySet())
+            Map<String, Object> effectiveCriteria = (criteria != null) ? new HashMap<>(criteria) : new HashMap<>();
+
+            // Inject categorie for Referentiel subclasses if absent
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class
+                    && !effectiveCriteria.containsKey("categorie")) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    effectiveCriteria.put("categorie", categorie);
+                }
+            }
+
+            List<Map.Entry<String, Object>> orderedCriteria = (!effectiveCriteria.isEmpty())
+                    ? new ArrayList<>(effectiveCriteria.entrySet())
                     : Collections.emptyList();
 
             List<String> columnNames = new ArrayList<>();
@@ -1023,7 +1094,7 @@ public class CGenericUtils {
             int offset = (pageNumber - 1) * pageSize;
 
             // Requête de données
-            String dataSql = "SELECT * FROM " + table + whereClause.toString() 
+                String dataSql = "SELECT * FROM " + table + whereClause.toString() 
                     + " ORDER BY id DESC LIMIT " + pageSize + " OFFSET " + offset;
             List<T> content = executeQuery(connection, clazz, dataSql, loadAttributes, params.toArray());
 
@@ -1061,9 +1132,17 @@ public class CGenericUtils {
             // Construire la clause WHERE
             StringBuilder whereClause = new StringBuilder();
             List<Object> params = new ArrayList<>();
+            // If Referentiel subclass, add mandatory categorie filter
+            if (Referentiel.class.isAssignableFrom(clazz) && clazz != Referentiel.class) {
+                String categorie = ((Referentiel) clazz.getDeclaredConstructor().newInstance()).getCategorie();
+                if (categorie != null && !categorie.isBlank()) {
+                    whereClause.append(" WHERE categorie = ?");
+                    params.add(categorie);
+                }
+            }
             
             if (search != null && !search.trim().isEmpty() && !searchableFields.isEmpty()) {
-                whereClause.append(" WHERE ");
+                whereClause.append(whereClause.indexOf(" WHERE ") >= 0 ? " AND " : " WHERE ");
                 String pattern = "%" + search.trim() + "%";
                 for (int i = 0; i < searchableFields.size(); i++) {
                     if (i > 0) whereClause.append(" OR ");

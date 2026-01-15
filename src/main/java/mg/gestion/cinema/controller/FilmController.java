@@ -112,11 +112,9 @@ public class FilmController {
 
             CGenericUtils.save(conn, film);
 
-            // Supprimer les anciennes associations de genres
             String deleteSql = "DELETE FROM l_genre_film WHERE film_id = ?";
             CGenericUtils.executeUpdate(conn, deleteSql, film.getId());
 
-            // Ajouter les nouvelles associations
             if (genreIds != null && !genreIds.isEmpty()) {
                 for (Integer genreId : genreIds) {
                     LGenreFilm lGenreFilm = new LGenreFilm();

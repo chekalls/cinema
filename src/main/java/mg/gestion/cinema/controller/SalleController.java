@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import mg.gestion.cinema.models.Cinema;
+import mg.gestion.cinema.models.Place;
 import mg.gestion.cinema.models.Salle;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
@@ -95,7 +96,7 @@ public class SalleController {
 
     @PostMapping("/save")
     public String enregistrerSalle(@ModelAttribute Salle salle, RedirectAttributes redirectAttributes) {
-        try (Connection conn = connexionService.getConnection()) {
+        try {
             boolean isNew = salle.getId() == null;
 
             if (salle.getCinemaId() == null) {
@@ -113,13 +114,28 @@ public class SalleController {
                 redirectAttributes.addFlashAttribute("salle", salle);
                 return "redirect:/salles/form";
             }
+
+            if(salle.getNbColonnes()!=null && salle.getNbRangees()!=null){
+                int capacite = salle.getNbColonnes() * salle.getNbRangees();
+                salle.setCapaciteTotal(capacite);
+            } 
+
             if (salle.getCapaciteTotal() == null || salle.getCapaciteTotal() <= 0) {
                 redirectAttributes.addFlashAttribute("error", "La capacité totale doit être supérieure à 0");
                 redirectAttributes.addFlashAttribute("salle", salle);
                 return "redirect:/salles/form";
             }
 
-            CGenericUtils.save(conn, salle);
+            connexionService.executeInTransaction(conn ->{
+                CGenericUtils.save(conn, salle);
+
+                if(salle.getNbColonnes()==null || salle.getNbRangees()==null) {
+                    salle.setAutoNbRangeesAndColonnes(conn);
+                }
+
+                salle.insererPlace(salle.getNbColonnes(), salle.getNbRangees(), conn);
+            });
+
             String message = isNew ? "Salle ajoutée avec succès" : "Salle modifiée avec succès";
             redirectAttributes.addFlashAttribute("message", message);
             return "redirect:/salles";
@@ -167,8 +183,11 @@ public class SalleController {
             cinemaCriteria.put("id", salle.getCinemaId());
             Cinema cinema = CGenericUtils.findOne(conn, Cinema.class, cinemaCriteria);
 
+            List<Place> places = CGenericUtils.find(conn,Place.class,Map.of("salle_id",salle.getId()),true);
+
             model.addAttribute("salle", salle);
             model.addAttribute("cinema", cinema);
+            model.addAttribute("places",places);
             return "salle/detailSalle";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement de la salle : " + e.getMessage());
