@@ -182,18 +182,22 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                        <button type="button" 
-                                class="btn btn-success btn-lg mr-2" 
-                                onclick="if(confirm('Confirmer cette réservation ?')) window.location.href='/reservations/payement/${reservation.id}'">
-                            <i class="fas fa-check mr-2"></i>
-                            effectuer payement
-                        </button>
+                        <c:if test="${reservation.statut.id == 13}">
+                            <button type="button" 
+                                    class="btn btn-success btn-lg mr-2"
+                                    onclick="if(confirm('Confirmer cette réservation ?')) 
+                                             window.location.href='${pageContext.request.contextPath}/reservations/payement/${reservation.id}'">
+                                <i class="fas fa-check mr-2"></i>
+                                effectuer paiement
+                            </button>
                         <button type="button" 
                                 class="btn btn-danger btn-lg" 
                                 onclick="if(confirm('Annuler cette réservation ? Cette action est irréversible.')) window.location.href='/reservations/annuler/${reservation.id}'">
                             <i class="fas fa-times mr-2"></i>
                             Annuler la réservation
                         </button>
+                        </c:if>
+
                         <a href="/reservations" class="btn btn-default btn-lg float-right">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Retour à la liste
