@@ -36,6 +36,9 @@ public class Seance extends BaseEntity {
     public List<Billet> getBillets(Connection conn, LocalDateTime date) {
         String sql = "SELECT * FROM billet WHERE seance_id = ? AND date_achat <= ? ORDER BY date_achat ASC";
         List<Billet> billets = CGenericUtils.executeQuery(conn, Billet.class, sql, this.id, date);
+        for (Billet billet : billets) {
+            billet.loadAttributes(conn);
+        }
         return billets;
     }
 

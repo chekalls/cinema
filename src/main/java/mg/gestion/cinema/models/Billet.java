@@ -43,6 +43,15 @@ public class Billet extends BaseEntity{
     @Column(ignore = true)
     private Tarif tarif;
 
+    @Column(ignore = true)
+    private TypePersone typePersone;
+
+    @Column(ignore = true)
+    private double prixRemise = 0;
+
+    @Column(ignore = true)
+    private TypePlace typePlace;
+
     @Column(name="type_personne_id")
     private Integer type_personne;
 
@@ -66,9 +75,14 @@ public class Billet extends BaseEntity{
         }
         if(this.placeId != null){
             this.place = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Place.class,Map.of("id",this.placeId));
+            this.typePlace = CGenericUtils.findOne(conn, TypePlace.class, Map.of("id",place.getTypePlaceId()),false);
         }
         if(this.tarifId != null){
             this.tarif = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Tarif.class,Map.of("id",this.tarifId));
+        }
+        if(this.type_personne != null){
+            this.typePersone = CGenericUtils.findOne(conn, TypePersone.class, Map.of("id",this.getType_personne()));
+            this.prixRemise = this.getActualPrixBillet(conn);
         }
     }
 
@@ -162,6 +176,34 @@ public class Billet extends BaseEntity{
 
     public Integer getType_personne() {
         return type_personne;
+    }
+
+    public void setType_personne(Integer type_personne) {
+        this.type_personne = type_personne;
+    }
+
+    public TypePersone getTypePersone() {
+        return typePersone;
+    }
+
+    public void setTypePersone(TypePersone typePersone) {
+        this.typePersone = typePersone;
+    }
+
+    public double getPrixRemise() {
+        return prixRemise;
+    }
+
+    public void setPrixRemise(double prixRemise) {
+        this.prixRemise = prixRemise;
+    }
+
+    public TypePlace getTypePlace() {
+        return typePlace;
+    }
+
+    public void setTypePlace(TypePlace typePlace) {
+        this.typePlace = typePlace;
     }
 }
 

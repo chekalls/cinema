@@ -24,6 +24,7 @@ import mg.gestion.cinema.models.Place;
 import mg.gestion.cinema.models.Seance;
 import mg.gestion.cinema.models.Statut;
 import mg.gestion.cinema.models.Tarif;
+import mg.gestion.cinema.models.TypePersone;
 import mg.gestion.cinema.models.TypePlace;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
@@ -95,7 +96,7 @@ public class BilletController {
 
     @PostMapping("/acheter")
     public String acheterBillet(Model model, @RequestParam("seanceId") Integer seanceId,
-            @RequestParam("typePlaceId") Integer typePlaceId) {
+            @RequestParam("typePlaceId") Integer typePlaceId,@RequestParam(name = "typePersonneId",required = false) Integer typePersonneId) {
         try (var conn = connexionService.getConnection()) {
             LocalDateTime now = LocalDateTime.now();
 
@@ -121,6 +122,7 @@ public class BilletController {
             billet.setPrixReel(typePlace.getPrix());
             billet.setDateAchat(now);
             billet.setStatut(statutBillet.getId());
+            billet.setType_personne(typePersonneId);
 
             connexionService.executeInTransaction(connection -> {
                 try {
@@ -151,7 +153,9 @@ public class BilletController {
         try (var conn = connexionService.getConnection()) {
             List<Film> films = CGenericUtils.find(conn, Film.class, null);
             List<TypePlace> typePlaces = CGenericUtils.find(conn, TypePlace.class, null);
+            List<TypePersone> typePersones = CGenericUtils.find(conn, TypePersone.class, null);
 
+            model.addAttribute("typePersonnes",typePersones);
             model.addAttribute("films", films);
             model.addAttribute("typePlaces", typePlaces);
             return "billet/formulaireAchatBillet";

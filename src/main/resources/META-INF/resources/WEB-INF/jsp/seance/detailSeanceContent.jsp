@@ -197,25 +197,21 @@
                                                 <c:when test="${place != null}">
                                                     <c:choose>
                                                         <c:when test="${place.statut == 4}">
-                                                            <!-- Disponible -->
                                                             <span class="badge badge-success" style="cursor: pointer;" title="Place ${rang}-${col}: Disponible">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
                                                         <c:when test="${place.statut == 5}">
-                                                            <!-- En sélection -->
                                                             <span class="badge badge-warning" style="cursor: pointer;" title="Place ${rang}-${col}: En sélection">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
                                                         <c:when test="${place.statut == 6}">
-                                                            <!-- Réservée -->
                                                             <span class="badge badge-info" style="cursor: pointer;" title="Place ${rang}-${col}: Réservée">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
                                                         </c:when>
                                                         <c:when test="${place.statut == 7}">
-                                                            <!-- Vendue -->
                                                             <span class="badge badge-danger" style="cursor: pointer;" title="Place ${rang}-${col}: Vendue">
                                                                 <i class="fas fa-chair"></i>
                                                             </span>
@@ -239,7 +235,6 @@
                     </table>
                 </div>
                 
-                <!-- Légende -->
                 <div class="mt-3">
                     <h6>Légende :</h6>
                     <div>
@@ -252,9 +247,78 @@
             </div>
         </div>
         </c:if>
+
+        <c:if test="${not empty billets}">
+        <div class="card card-outline card-dark">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-ticket-alt mr-2"></i>
+                    Liste des billets achetés
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Place</th>
+                            <th>type personnes</th>
+                            <th>Prix</th>
+                            <th>Date d’achat</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach items="${billets}" var="b">
+                            <tr>
+                                <td>${b.id}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${b.place != null}">
+                                            R${b.place.rang} - C${b.place.col}
+                                        </c:when>
+                                        <c:otherwise>-</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${b.typePersone != null}">
+                                            ${b.typePersone.nom}
+                                        </c:when>
+                                        <c:otherwise>-</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    ${b.prixRemise} - ${b.typePlace.nom}
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${b.dateAchat != null}">
+                                            <spring:eval expression="T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm').format(b.dateAchat)" />
+                                        </c:when>
+                                        <c:otherwise>-</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${b.statutDetails != null}">
+                                            <span class="badge badge-info">${b.statutDetails.nom}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge badge-secondary">-</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </c:if>
+
     </div>
 
-    <!-- Statistiques -->
     <div class="col-md-4">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -321,7 +385,6 @@
             </div>
         </div>
 
-        <!-- Actions rapides -->
         <div class="card card-warning card-outline">
             <div class="card-header">
                 <h3 class="card-title">
@@ -347,7 +410,6 @@
     </div>
 </div>
 
-<!-- Modal de suppression -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

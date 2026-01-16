@@ -19,7 +19,7 @@ public class ConnexionService {
     public void init(){
         String url = "jdbc:postgresql://localhost:5432/gestion_cinema";
         String username = "postgres";
-        String password = "lovapinto";
+        String password = "admin";
         manager = ConnexionManager.getInstance(url, username, password);
     }
 

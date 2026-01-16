@@ -80,6 +80,22 @@
                         <small class="form-text text-muted">Choisissez le type de place souhaité.</small>
                     </div>
 
+                    <div class="form-group">
+                        <label for="typePlace">Type de personne <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-couch"></i></span>
+                            </div>
+                            <select name="typePersonneId" id="typePersonne" class="form-control" required>
+                                <option value="">-- Sélectionnez un type de personne --</option>
+                                <c:forEach items="${typePersonnes}" var="typePersonne">
+                                    <option value="${typePersonne.id}">${typePersonne.nom}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                        <small class="form-text text-muted">Choisissez le type de place souhaité.</small>
+                    </div>
+
                     <!-- Affichage du prix -->
                     <div id="affichagePrix" style="display: none;" class="alert alert-info">
                         <strong><i class="fas fa-info-circle mr-2"></i>Prix :</strong> <span id="prixValeur">0.00</span> €
