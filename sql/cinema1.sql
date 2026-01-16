@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict s25TmGvvQnrTI1n1BHVaUJFjqfhcmv7cGYlCQAStsvtUXTIQhZ4F9T3jMoDlqin
+\restrict emKMW1QbKtLgbFDyMyfazZkQn7foxPlEFn2QUxB8VdW1vzbRJfTgULJ2kJq3qxJ
 
--- Dumped from database version 17.6
--- Dumped by pg_dump version 17.6
+-- Dumped from database version 17.7 (Debian 17.7-0+deb13u1)
+-- Dumped by pg_dump version 17.7 (Debian 17.7-0+deb13u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -48,12 +48,11 @@ CREATE TABLE public.billet (
     seance_id integer NOT NULL,
     place_id integer NOT NULL,
     tarif_id integer,
-    prix_reel numeric(15,3) DEFAULT 0 NOT NULL,
+    prix_reel numeric(15,3) NOT NULL,
     date_utilisation timestamp without time zone,
     statut integer,
     date_achat timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    reservation_id integer,
-    type_personne_id integer
+    reservation_id integer
 );
 
 
@@ -609,40 +608,6 @@ ALTER SEQUENCE public.tarif_id_seq OWNED BY public.tarif.id;
 
 
 --
--- Name: type_personne; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.type_personne (
-    id integer NOT NULL,
-    nom character varying(200) NOT NULL
-);
-
-
-ALTER TABLE public.type_personne OWNER TO postgres;
-
---
--- Name: type_personne_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.type_personne_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.type_personne_id_seq OWNER TO postgres;
-
---
--- Name: type_personne_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.type_personne_id_seq OWNED BY public.type_personne.id;
-
-
---
 -- Name: type_place; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -677,42 +642,6 @@ ALTER SEQUENCE public.type_place_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.type_place_id_seq OWNED BY public.type_place.id;
-
-
---
--- Name: type_place_prix; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.type_place_prix (
-    id integer NOT NULL,
-    prix_place numeric NOT NULL,
-    type_place_id integer NOT NULL,
-    type_personne_id integer NOT NULL
-);
-
-
-ALTER TABLE public.type_place_prix OWNER TO postgres;
-
---
--- Name: type_place_prix_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.type_place_prix_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.type_place_prix_id_seq OWNER TO postgres;
-
---
--- Name: type_place_prix_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.type_place_prix_id_seq OWNED BY public.type_place_prix.id;
 
 
 --
@@ -841,13 +770,6 @@ ALTER TABLE ONLY public.tarif ALTER COLUMN id SET DEFAULT nextval('public.tarif_
 
 
 --
--- Name: type_personne id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_personne ALTER COLUMN id SET DEFAULT nextval('public.type_personne_id_seq'::regclass);
-
-
---
 -- Name: type_place id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -855,19 +777,11 @@ ALTER TABLE ONLY public.type_place ALTER COLUMN id SET DEFAULT nextval('public.t
 
 
 --
--- Name: type_place_prix id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_place_prix ALTER COLUMN id SET DEFAULT nextval('public.type_place_prix_id_seq'::regclass);
-
-
---
 -- Data for Name: billet; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.billet (id, seance_id, place_id, tarif_id, prix_reel, date_utilisation, statut, date_achat, reservation_id, type_personne_id) FROM stdin;
-25	4	81	\N	0.000	\N	17	2026-01-16 04:22:08.305766	\N	1
-26	4	82	\N	0.000	\N	17	2026-01-16 06:41:02.560335	\N	2
+COPY public.billet (id, seance_id, place_id, tarif_id, prix_reel, date_utilisation, statut, date_achat, reservation_id) FROM stdin;
+25	4	81	\N	20000.000	\N	17	2026-01-16 04:22:08.305766	\N
 \.
 
 
@@ -976,6 +890,7 @@ COPY public.paiement_methode (id, code, nom, actif, frais_pourcent, ordre) FROM 
 --
 
 COPY public.place (id, rang, col, type_place_id, statut, salle_id, date_modification) FROM stdin;
+81	1	1	1	4	4	\N
 82	1	2	1	4	4	\N
 83	1	3	1	4	4	\N
 84	1	4	1	4	4	\N
@@ -1075,7 +990,6 @@ COPY public.place (id, rang, col, type_place_id, statut, salle_id, date_modifica
 178	10	8	3	4	4	\N
 179	10	9	3	4	4	\N
 180	10	10	3	4	4	\N
-81	1	1	3	4	4	\N
 \.
 
 
@@ -1195,16 +1109,6 @@ COPY public.tarif (id, nom, prix_base, type_tarif_id, actif) FROM stdin;
 
 
 --
--- Data for Name: type_personne; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.type_personne (id, nom) FROM stdin;
-1	Enfant
-2	Adulte
-\.
-
-
---
 -- Data for Name: type_place; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -1216,19 +1120,10 @@ COPY public.type_place (id, nom, code, desce, prix) FROM stdin;
 
 
 --
--- Data for Name: type_place_prix; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.type_place_prix (id, prix_place, type_place_id, type_personne_id) FROM stdin;
-1	15000	1	1
-\.
-
-
---
 -- Name: billet_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.billet_id_seq', 26, true);
+SELECT pg_catalog.setval('public.billet_id_seq', 25, true);
 
 
 --
@@ -1330,24 +1225,10 @@ SELECT pg_catalog.setval('public.tarif_id_seq', 3, true);
 
 
 --
--- Name: type_personne_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.type_personne_id_seq', 2, true);
-
-
---
 -- Name: type_place_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public.type_place_id_seq', 3, true);
-
-
---
--- Name: type_place_prix_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.type_place_prix_id_seq', 1, true);
 
 
 --
@@ -1471,27 +1352,11 @@ ALTER TABLE ONLY public.tarif
 
 
 --
--- Name: type_personne type_personne_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_personne
-    ADD CONSTRAINT type_personne_pkey PRIMARY KEY (id);
-
-
---
 -- Name: type_place type_place_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.type_place
     ADD CONSTRAINT type_place_pkey PRIMARY KEY (id);
-
-
---
--- Name: type_place_prix type_place_prix_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_place_prix
-    ADD CONSTRAINT type_place_prix_pkey PRIMARY KEY (id);
 
 
 --
@@ -1560,14 +1425,6 @@ ALTER TABLE ONLY public.billet
 
 ALTER TABLE ONLY public.billet
     ADD CONSTRAINT billet_tarif_id_fkey FOREIGN KEY (tarif_id) REFERENCES public.tarif(id) NOT VALID;
-
-
---
--- Name: billet billet_type_personne_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.billet
-    ADD CONSTRAINT billet_type_personne_id_fkey FOREIGN KEY (type_personne_id) REFERENCES public.type_personne(id) NOT VALID;
 
 
 --
@@ -1683,24 +1540,8 @@ ALTER TABLE ONLY public.tarif
 
 
 --
--- Name: type_place_prix type_place_prix_type_personne_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_place_prix
-    ADD CONSTRAINT type_place_prix_type_personne_id_fkey FOREIGN KEY (type_personne_id) REFERENCES public.type_personne(id);
-
-
---
--- Name: type_place_prix type_place_prix_type_place_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.type_place_prix
-    ADD CONSTRAINT type_place_prix_type_place_id_fkey FOREIGN KEY (type_place_id) REFERENCES public.type_place(id);
-
-
---
 -- PostgreSQL database dump complete
 --
 
-\unrestrict s25TmGvvQnrTI1n1BHVaUJFjqfhcmv7cGYlCQAStsvtUXTIQhZ4F9T3jMoDlqin
+\unrestrict emKMW1QbKtLgbFDyMyfazZkQn7foxPlEFn2QUxB8VdW1vzbRJfTgULJ2kJq3qxJ
 
