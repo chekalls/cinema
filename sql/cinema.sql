@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict hnBUtUfkK5hfUXJdJcJDdDHeaHaERkCMobIZKRfSU3yC0JPbu7jYoq0AvyQ80A9
+\restrict emKMW1QbKtLgbFDyMyfazZkQn7foxPlEFn2QUxB8VdW1vzbRJfTgULJ2kJq3qxJ
 
--- Dumped from database version 17.6 (Debian 17.6-0+deb13u1)
--- Dumped by pg_dump version 17.6 (Debian 17.6-0+deb13u1)
+-- Dumped from database version 17.7 (Debian 17.7-0+deb13u1)
+-- Dumped by pg_dump version 17.7 (Debian 17.7-0+deb13u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -47,7 +47,7 @@ CREATE TABLE public.billet (
     id integer NOT NULL,
     seance_id integer NOT NULL,
     place_id integer NOT NULL,
-    tarif_id integer NOT NULL,
+    tarif_id integer,
     prix_reel numeric(15,3) NOT NULL,
     date_utilisation timestamp without time zone,
     statut integer,
@@ -209,6 +209,89 @@ CREATE TABLE public.l_genre_film (
 ALTER TABLE public.l_genre_film OWNER TO postgres;
 
 --
+-- Name: paiement; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paiement (
+    id integer NOT NULL,
+    reservation_id integer NOT NULL,
+    methode_id smallint NOT NULL,
+    reference character varying(100),
+    montant numeric(15,3) NOT NULL,
+    frais numeric(15,3),
+    montant_net numeric(15,3),
+    statut_id integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    completed_at timestamp without time zone,
+    details_json jsonb,
+    parent_paiement_id integer
+);
+
+
+ALTER TABLE public.paiement OWNER TO postgres;
+
+--
+-- Name: paiement_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.paiement_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.paiement_id_seq OWNER TO postgres;
+
+--
+-- Name: paiement_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.paiement_id_seq OWNED BY public.paiement.id;
+
+
+--
+-- Name: paiement_methode; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paiement_methode (
+    id smallint NOT NULL,
+    code character varying(20) NOT NULL,
+    nom character varying(200) NOT NULL,
+    actif boolean DEFAULT true,
+    frais_pourcent numeric(5,2),
+    ordre integer DEFAULT 0
+);
+
+
+ALTER TABLE public.paiement_methode OWNER TO postgres;
+
+--
+-- Name: paiement_methode_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.paiement_methode_id_seq
+    AS smallint
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.paiement_methode_id_seq OWNER TO postgres;
+
+--
+-- Name: paiement_methode_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.paiement_methode_id_seq OWNED BY public.paiement_methode.id;
+
+
+--
 -- Name: place; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -245,6 +328,41 @@ ALTER SEQUENCE public.place_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.place_id_seq OWNED BY public.place.id;
+
+
+--
+-- Name: prix_billet; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.prix_billet (
+    id smallint NOT NULL,
+    type_place_id integer NOT NULL,
+    prix_total numeric(15,3)
+);
+
+
+ALTER TABLE public.prix_billet OWNER TO postgres;
+
+--
+-- Name: prix_billet_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.prix_billet_id_seq
+    AS smallint
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.prix_billet_id_seq OWNER TO postgres;
+
+--
+-- Name: prix_billet_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.prix_billet_id_seq OWNED BY public.prix_billet.id;
 
 
 --
@@ -497,7 +615,8 @@ CREATE TABLE public.type_place (
     id integer NOT NULL,
     nom character varying(200) NOT NULL,
     code character varying(15),
-    desce text
+    desce text,
+    prix numeric(15,3)
 );
 
 
@@ -581,10 +700,31 @@ ALTER TABLE ONLY public.historique ALTER COLUMN id SET DEFAULT nextval('public.h
 
 
 --
+-- Name: paiement id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement ALTER COLUMN id SET DEFAULT nextval('public.paiement_id_seq'::regclass);
+
+
+--
+-- Name: paiement_methode id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement_methode ALTER COLUMN id SET DEFAULT nextval('public.paiement_methode_id_seq'::regclass);
+
+
+--
 -- Name: place id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.place ALTER COLUMN id SET DEFAULT nextval('public.place_id_seq'::regclass);
+
+
+--
+-- Name: prix_billet id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prix_billet ALTER COLUMN id SET DEFAULT nextval('public.prix_billet_id_seq'::regclass);
 
 
 --
@@ -641,17 +781,7 @@ ALTER TABLE ONLY public.type_place ALTER COLUMN id SET DEFAULT nextval('public.t
 --
 
 COPY public.billet (id, seance_id, place_id, tarif_id, prix_reel, date_utilisation, statut, date_achat, reservation_id) FROM stdin;
-12	3	1	1	11.500	\N	17	2026-01-10 19:08:00	1
-13	3	2	1	11.500	\N	17	2026-01-10 19:08:00	1
-14	3	3	1	11.500	\N	17	2026-01-10 19:08:00	1
-15	3	4	1	11.500	\N	17	2026-01-10 19:08:00	1
-16	3	5	1	11.500	\N	17	2026-01-10 19:08:00	1
-17	3	6	1	11.500	\N	17	2026-01-10 21:20:00	2
-18	3	7	1	11.500	\N	17	2026-01-10 21:20:00	2
-19	3	8	1	11.500	\N	17	2026-01-10 21:20:00	2
-20	3	9	1	11.500	\N	17	2026-01-10 21:20:00	2
-21	3	10	1	11.500	\N	17	2026-01-10 21:20:00	2
-22	3	11	1	11.500	\N	17	2026-01-10 21:20:00	2
+25	4	81	\N	20000.000	\N	17	2026-01-16 04:22:08.305766	\N
 \.
 
 
@@ -671,6 +801,7 @@ COPY public.cinema (id, nom, adresse, email, created_at, updated_at) FROM stdin;
 COPY public.film (id, titre, realisateur, acteurs, duree_minutes, date_sortie, synopsis, url_affiche, created_at) FROM stdin;
 1	film test			120	2026-01-01			2026-01-09 04:12:28.647049
 2	film 1 			120	2026-01-01			2026-01-09 04:17:49.818966
+3	Est eius occaecat co	Aut eaque dolor dolo	Animi itaque except	96	2013-03-14	Quas optio eligendi	Corrupti odit ipsa	2026-01-16 05:35:39.203354
 \.
 
 
@@ -713,6 +844,7 @@ COPY public.historique (id, table_name, cle_primaire, statut, date_modification)
 37	billet                                                                                              	21	17	2026-01-10 21:20:57.868706
 38	billet                                                                                              	22	17	2026-01-10 21:20:57.868706
 39	reservation                                                                                         	2	14	2026-01-10 21:20:57.868706
+40	billet                                                                                              	25	17	2026-01-16 04:22:08.305766
 \.
 
 
@@ -724,6 +856,32 @@ COPY public.l_genre_film (film_id, genre_id) FROM stdin;
 2	11
 2	12
 2	13
+3	4
+3	5
+3	10
+3	11
+3	13
+3	14
+\.
+
+
+--
+-- Data for Name: paiement; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paiement (id, reservation_id, methode_id, reference, montant, frais, montant_net, statut_id, created_at, updated_at, completed_at, details_json, parent_paiement_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: paiement_methode; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paiement_methode (id, code, nom, actif, frais_pourcent, ordre) FROM stdin;
+1	STRIPE	Carte bancaire (Stripe)	t	2.90	10
+2	ORANGE_MONEY	Orange Money	t	1.50	20
+3	MVOLA	MVola	t	1.00	30
+4	ESPECES	Espèces à la caisse	t	0.00	40
 \.
 
 
@@ -732,86 +890,114 @@ COPY public.l_genre_film (film_id, genre_id) FROM stdin;
 --
 
 COPY public.place (id, rang, col, type_place_id, statut, salle_id, date_modification) FROM stdin;
-12	2	4	\N	4	4	\N
-13	2	5	\N	4	4	\N
-14	2	6	\N	4	4	\N
-15	2	7	\N	4	4	\N
-16	2	8	\N	4	4	\N
-17	3	1	\N	4	4	\N
-18	3	2	\N	4	4	\N
-19	3	3	\N	4	4	\N
-20	3	4	\N	4	4	\N
-21	3	5	\N	4	4	\N
-22	3	6	\N	4	4	\N
-23	3	7	\N	4	4	\N
-24	3	8	\N	4	4	\N
-25	4	1	\N	4	4	\N
-26	4	2	\N	4	4	\N
-27	4	3	\N	4	4	\N
-28	4	4	\N	4	4	\N
-29	4	5	\N	4	4	\N
-30	4	6	\N	4	4	\N
-31	4	7	\N	4	4	\N
-32	4	8	\N	4	4	\N
-33	5	1	\N	4	4	\N
-34	5	2	\N	4	4	\N
-35	5	3	\N	4	4	\N
-36	5	4	\N	4	4	\N
-37	5	5	\N	4	4	\N
-38	5	6	\N	4	4	\N
-39	5	7	\N	4	4	\N
-40	5	8	\N	4	4	\N
-41	6	1	\N	4	4	\N
-42	6	2	\N	4	4	\N
-43	6	3	\N	4	4	\N
-44	6	4	\N	4	4	\N
-45	6	5	\N	4	4	\N
-46	6	6	\N	4	4	\N
-47	6	7	\N	4	4	\N
-48	6	8	\N	4	4	\N
-49	7	1	\N	4	4	\N
-50	7	2	\N	4	4	\N
-51	7	3	\N	4	4	\N
-52	7	4	\N	4	4	\N
-53	7	5	\N	4	4	\N
-54	7	6	\N	4	4	\N
-55	7	7	\N	4	4	\N
-56	7	8	\N	4	4	\N
-57	8	1	\N	4	4	\N
-58	8	2	\N	4	4	\N
-59	8	3	\N	4	4	\N
-60	8	4	\N	4	4	\N
-61	8	5	\N	4	4	\N
-62	8	6	\N	4	4	\N
-63	8	7	\N	4	4	\N
-64	8	8	\N	4	4	\N
-65	9	1	\N	4	4	\N
-66	9	2	\N	4	4	\N
-67	9	3	\N	4	4	\N
-68	9	4	\N	4	4	\N
-69	9	5	\N	4	4	\N
-70	9	6	\N	4	4	\N
-71	9	7	\N	4	4	\N
-72	9	8	\N	4	4	\N
-73	10	1	\N	4	4	\N
-74	10	2	\N	4	4	\N
-75	10	3	\N	4	4	\N
-76	10	4	\N	4	4	\N
-77	10	5	\N	4	4	\N
-78	10	6	\N	4	4	\N
-79	10	7	\N	4	4	\N
-80	10	8	\N	4	4	\N
-1	1	1	\N	5	4	\N
-2	1	2	\N	5	4	\N
-3	1	3	\N	5	4	\N
-4	1	4	\N	5	4	\N
-5	1	5	\N	5	4	\N
-6	1	6	\N	5	4	\N
-7	1	7	\N	5	4	\N
-8	1	8	\N	5	4	\N
-9	2	1	\N	5	4	\N
-10	2	2	\N	5	4	\N
-11	2	3	\N	5	4	\N
+81	1	1	1	4	4	\N
+82	1	2	1	4	4	\N
+83	1	3	1	4	4	\N
+84	1	4	1	4	4	\N
+85	1	5	1	4	4	\N
+86	1	6	1	4	4	\N
+87	1	7	1	4	4	\N
+88	1	8	1	4	4	\N
+89	1	9	1	4	4	\N
+90	1	10	1	4	4	\N
+91	2	1	1	4	4	\N
+92	2	2	1	4	4	\N
+93	2	3	1	4	4	\N
+94	2	4	1	4	4	\N
+95	2	5	1	4	4	\N
+96	2	6	1	4	4	\N
+97	2	7	1	4	4	\N
+98	2	8	1	4	4	\N
+99	2	9	1	4	4	\N
+100	2	10	1	4	4	\N
+101	3	1	1	4	4	\N
+102	3	2	1	4	4	\N
+103	3	3	1	4	4	\N
+104	3	4	1	4	4	\N
+105	3	5	1	4	4	\N
+106	3	6	1	4	4	\N
+107	3	7	1	4	4	\N
+108	3	8	1	4	4	\N
+109	3	9	1	4	4	\N
+110	3	10	1	4	4	\N
+111	4	1	1	4	4	\N
+112	4	2	1	4	4	\N
+113	4	3	1	4	4	\N
+114	4	4	1	4	4	\N
+115	4	5	1	4	4	\N
+116	4	6	1	4	4	\N
+117	4	7	1	4	4	\N
+118	4	8	1	4	4	\N
+119	4	9	1	4	4	\N
+120	4	10	1	4	4	\N
+121	5	1	1	4	4	\N
+122	5	2	1	4	4	\N
+123	5	3	1	4	4	\N
+124	5	4	1	4	4	\N
+125	5	5	1	4	4	\N
+126	5	6	1	4	4	\N
+127	5	7	1	4	4	\N
+128	5	8	1	4	4	\N
+129	5	9	1	4	4	\N
+130	5	10	1	4	4	\N
+131	6	1	1	4	4	\N
+132	6	2	1	4	4	\N
+133	6	3	1	4	4	\N
+134	6	4	1	4	4	\N
+135	6	5	1	4	4	\N
+136	6	6	1	4	4	\N
+137	6	7	1	4	4	\N
+138	6	8	1	4	4	\N
+139	6	9	1	4	4	\N
+140	6	10	1	4	4	\N
+141	7	1	1	4	4	\N
+142	7	2	1	4	4	\N
+143	7	3	1	4	4	\N
+144	7	4	1	4	4	\N
+145	7	5	1	4	4	\N
+146	7	6	1	4	4	\N
+147	7	7	1	4	4	\N
+148	7	8	1	4	4	\N
+149	7	9	1	4	4	\N
+150	7	10	1	4	4	\N
+151	8	1	2	4	4	\N
+152	8	2	2	4	4	\N
+153	8	3	2	4	4	\N
+154	8	4	2	4	4	\N
+155	8	5	2	4	4	\N
+156	8	6	2	4	4	\N
+157	8	7	2	4	4	\N
+158	8	8	2	4	4	\N
+159	8	9	2	4	4	\N
+160	8	10	2	4	4	\N
+161	9	1	2	4	4	\N
+162	9	2	2	4	4	\N
+163	9	3	2	4	4	\N
+164	9	4	2	4	4	\N
+165	9	5	2	4	4	\N
+166	9	6	2	4	4	\N
+167	9	7	2	4	4	\N
+168	9	8	2	4	4	\N
+169	9	9	2	4	4	\N
+170	9	10	2	4	4	\N
+171	10	1	3	4	4	\N
+172	10	2	3	4	4	\N
+173	10	3	3	4	4	\N
+174	10	4	3	4	4	\N
+175	10	5	3	4	4	\N
+176	10	6	3	4	4	\N
+177	10	7	3	4	4	\N
+178	10	8	3	4	4	\N
+179	10	9	3	4	4	\N
+180	10	10	3	4	4	\N
+\.
+
+
+--
+-- Data for Name: prix_billet; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.prix_billet (id, type_place_id, prix_total) FROM stdin;
 \.
 
 
@@ -870,7 +1056,7 @@ COPY public.reservation (id, numero, montant_total, date_creation, date_expirati
 --
 
 COPY public.salle (id, numero, designation, capacite_total, cinema_id, nb_rangees, nb_colonnes) FROM stdin;
-4	S01	salle1	80	1	10	8
+4	S01	salle1	100	1	10	10
 \.
 
 
@@ -880,6 +1066,7 @@ COPY public.salle (id, numero, designation, capacite_total, cinema_id, nb_rangee
 
 COPY public.seance (id, film_id, salle_id, debut, fin, format_id) FROM stdin;
 3	1	4	2026-01-15 09:00:00	2026-01-15 11:00:00	\N
+4	1	4	2026-02-01 13:00:00	2026-02-01 15:00:00	\N
 \.
 
 
@@ -925,7 +1112,10 @@ COPY public.tarif (id, nom, prix_base, type_tarif_id, actif) FROM stdin;
 -- Data for Name: type_place; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.type_place (id, nom, code, desce) FROM stdin;
+COPY public.type_place (id, nom, code, desce, prix) FROM stdin;
+1	standard	STD		20000.000
+2	premium	PRM		50000.000
+3	VIP	VIP		90000.000
 \.
 
 
@@ -933,7 +1123,7 @@ COPY public.type_place (id, nom, code, desce) FROM stdin;
 -- Name: billet_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.billet_id_seq', 22, true);
+SELECT pg_catalog.setval('public.billet_id_seq', 25, true);
 
 
 --
@@ -947,21 +1137,42 @@ SELECT pg_catalog.setval('public.cinema_id_seq', 1, true);
 -- Name: film_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.film_id_seq', 2, true);
+SELECT pg_catalog.setval('public.film_id_seq', 3, true);
 
 
 --
 -- Name: historique_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.historique_id_seq', 39, true);
+SELECT pg_catalog.setval('public.historique_id_seq', 40, true);
+
+
+--
+-- Name: paiement_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.paiement_id_seq', 1, false);
+
+
+--
+-- Name: paiement_methode_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.paiement_methode_id_seq', 4, true);
 
 
 --
 -- Name: place_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.place_id_seq', 80, true);
+SELECT pg_catalog.setval('public.place_id_seq', 180, true);
+
+
+--
+-- Name: prix_billet_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.prix_billet_id_seq', 1, false);
 
 
 --
@@ -996,7 +1207,7 @@ SELECT pg_catalog.setval('public.salle_id_seq', 4, true);
 -- Name: sceance_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.sceance_id_seq', 3, true);
+SELECT pg_catalog.setval('public.sceance_id_seq', 4, true);
 
 
 --
@@ -1017,7 +1228,7 @@ SELECT pg_catalog.setval('public.tarif_id_seq', 3, true);
 -- Name: type_place_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.type_place_id_seq', 1, false);
+SELECT pg_catalog.setval('public.type_place_id_seq', 3, true);
 
 
 --
@@ -1061,11 +1272,35 @@ ALTER TABLE ONLY public.l_genre_film
 
 
 --
+-- Name: paiement_methode paiement_methode_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement_methode
+    ADD CONSTRAINT paiement_methode_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: paiement paiement_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement
+    ADD CONSTRAINT paiement_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: place place_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.place
     ADD CONSTRAINT place_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: prix_billet prix_billet_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.prix_billet
+    ADD CONSTRAINT prix_billet_pkey PRIMARY KEY (id, type_place_id);
 
 
 --
@@ -1125,6 +1360,42 @@ ALTER TABLE ONLY public.type_place
 
 
 --
+-- Name: billet unique_billet_seance_place; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.billet
+    ADD CONSTRAINT unique_billet_seance_place UNIQUE (seance_id, place_id);
+
+
+--
+-- Name: idx_billet_reservation_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_billet_reservation_id ON public.billet USING btree (reservation_id);
+
+
+--
+-- Name: idx_billet_seance_place; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_billet_seance_place ON public.billet USING btree (seance_id, place_id);
+
+
+--
+-- Name: idx_billet_seance_statut; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_billet_seance_statut ON public.billet USING btree (seance_id, statut);
+
+
+--
+-- Name: idx_place_salle_statut; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_place_salle_statut ON public.place USING btree (salle_id, statut);
+
+
+--
 -- Name: billet billet_place_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1170,6 +1441,38 @@ ALTER TABLE ONLY public.l_genre_film
 
 ALTER TABLE ONLY public.l_genre_film
     ADD CONSTRAINT l_genre_film_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES public.referentiel(id) NOT VALID;
+
+
+--
+-- Name: paiement paiement_methode_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement
+    ADD CONSTRAINT paiement_methode_id_fkey FOREIGN KEY (methode_id) REFERENCES public.paiement_methode(id);
+
+
+--
+-- Name: paiement paiement_parent_paiement_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement
+    ADD CONSTRAINT paiement_parent_paiement_id_fkey FOREIGN KEY (parent_paiement_id) REFERENCES public.paiement(id) NOT VALID;
+
+
+--
+-- Name: paiement paiement_reservation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement
+    ADD CONSTRAINT paiement_reservation_id_fkey FOREIGN KEY (reservation_id) REFERENCES public.reservation(id);
+
+
+--
+-- Name: paiement paiement_statut_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paiement
+    ADD CONSTRAINT paiement_statut_id_fkey FOREIGN KEY (statut_id) REFERENCES public.statut(id);
 
 
 --
@@ -1240,5 +1543,5 @@ ALTER TABLE ONLY public.tarif
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hnBUtUfkK5hfUXJdJcJDdDHeaHaERkCMobIZKRfSU3yC0JPbu7jYoq0AvyQ80A9
+\unrestrict emKMW1QbKtLgbFDyMyfazZkQn7foxPlEFn2QUxB8VdW1vzbRJfTgULJ2kJq3qxJ
 

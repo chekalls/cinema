@@ -63,21 +63,21 @@
                         <small class="form-text text-muted">Sélectionnez l'horaire souhaité.</small>
                     </div>
 
-                    <!-- Tarif -->
+                    <!-- Type de place -->
                     <div class="form-group">
-                        <label for="tarif">Tarif <span class="text-danger">*</span></label>
+                        <label for="typePlace">Type de place <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
+                                <span class="input-group-text"><i class="fas fa-couch"></i></span>
                             </div>
-                            <select name="tarifId" id="tarif" class="form-control" required>
-                                <option value="">-- Sélectionnez un tarif --</option>
-                                <c:forEach items="${tarifs}" var="tarif">
-                                    <option value="${tarif.id}" data-prix="${tarif.prixBase}">${tarif.nom}</option>
+                            <select name="typePlaceId" id="typePlace" class="form-control" required>
+                                <option value="">-- Sélectionnez un type de place --</option>
+                                <c:forEach items="${typePlaces}" var="typePlace">
+                                    <option value="${typePlace.id}" data-prix="${typePlace.prix}">${typePlace.nom} (${typePlace.code})</option>
                                 </c:forEach>
                             </select>
                         </div>
-                        <small class="form-text text-muted">Choisissez le type de tarif.</small>
+                        <small class="form-text text-muted">Choisissez le type de place souhaité.</small>
                     </div>
 
                     <!-- Affichage du prix -->
@@ -146,8 +146,8 @@ document.getElementById('film').addEventListener('change', function() {
         });
 });
 
-// Affichage du prix du tarif
-document.getElementById('tarif').addEventListener('change', function() {
+// Affichage du prix du type de place
+document.getElementById('typePlace').addEventListener('change', function() {
     const option = this.options[this.selectedIndex];
     const prix = option.getAttribute('data-prix');
     const affichagePrix = document.getElementById('affichagePrix');

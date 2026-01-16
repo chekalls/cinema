@@ -1,6 +1,11 @@
 package mg.gestion.cinema.models;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import mg.gestion.cinema.annotation.Column;
@@ -60,6 +65,63 @@ public class Salle extends BaseEntity {
                 CGenericUtils.save(conn, place);
             }
         }
+    }
+
+    /**
+     * Insère les places en les répartissant selon les quantités par type de place.
+     */
+    public void insererPlace(Map<Integer, Integer> typePlaceCounts, Connection conn) {
+        if (this.id == null) {
+            throw new IllegalStateException("La salle doit être sauvegardée avant de créer les places");
+        }
+        if (this.nbColonnes == null || this.nbRangees == null) {
+            throw new IllegalStateException("Le nombre de rangées et de colonnes doit être défini");
+        }
+
+        int capacity = this.nbColonnes * this.nbRangees;
+        int totalPlaces = typePlaceCounts.values().stream().mapToInt(Integer::intValue).sum();
+        if (totalPlaces > capacity) {
+            throw new IllegalArgumentException("La capacité de la salle est inférieure au nombre de places demandé");
+        }
+
+        Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code", "DISPO", "categorie", "PLACE"));
+
+        List<Integer> allocation = buildAllocationList(typePlaceCounts);
+        int index = 0;
+
+        for (int rang = 1; rang <= this.nbRangees; rang++) {
+            for (int col = 1; col <= this.nbColonnes; col++) {
+                if (index >= allocation.size()) {
+                    return;
+                }
+
+                Place place = new Place();
+                place.setSalleId(this.id);
+                place.setRang(rang);
+                place.setCol(col);
+                place.setTypePlaceId(allocation.get(index));
+                place.setStatut(statutPlace.getId());
+                CGenericUtils.save(conn, place);
+                index++;
+            }
+        }
+    }
+
+    private List<Integer> buildAllocationList(Map<Integer, Integer> typePlaceCounts) {
+        List<Map.Entry<Integer, Integer>> sorted = new ArrayList<>(typePlaceCounts.entrySet());
+        Collections.sort(sorted, Comparator.comparing(Map.Entry::getKey));
+
+        List<Integer> allocation = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : sorted) {
+            Integer typePlaceId = entry.getKey();
+            Integer count = entry.getValue();
+            if (typePlaceId != null && count != null && count > 0) {
+                for (int i = 0; i < count; i++) {
+                    allocation.add(typePlaceId);
+                }
+            }
+        }
+        return allocation;
     }
 
     public Integer getId() {

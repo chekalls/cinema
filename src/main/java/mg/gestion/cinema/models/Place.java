@@ -8,6 +8,7 @@ import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
+import mg.gestion.cinema.utils.CGenericUtils;
 
 @Table(name = "place")
 public class Place extends BaseEntity {
@@ -32,13 +33,25 @@ public class Place extends BaseEntity {
     @Column(ignore = true)
     private Statut statutDetails;
 
-    @Loader
-    public void loadAttributes(Connection conn){
-        if(this.typePlaceId != null){
-            this.typePlace = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,TypePlace.class,Map.of("id",this.typePlaceId));
+    public Statut getStatutByDate(LocalDateTime dateTime, Connection conn) {
+        String sql = "SELECT * FROM historique WHERE table_name = 'place' AND date_modification <= ? ORDER BY date_modification DESC LIMIT 1";
+        Historique historique = CGenericUtils.executeQueryOne(conn, Historique.class, sql, dateTime);
+        Statut statut = null;
+        if (historique != null) {
+            statut = CGenericUtils.findOne(conn, Statut.class, Map.of("id", historique.getStatut()));
         }
-        if(this.statut != null){
-            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Statut.class,Map.of("id",this.statut));
+        return statut;
+    }
+
+    @Loader
+    public void loadAttributes(Connection conn) {
+        if (this.typePlaceId != null) {
+            this.typePlace = mg.gestion.cinema.utils.CGenericUtils.findOne(conn, TypePlace.class,
+                    Map.of("id", this.typePlaceId));
+        }
+        if (this.statut != null) {
+            this.statutDetails = mg.gestion.cinema.utils.CGenericUtils.findOne(conn, Statut.class,
+                    Map.of("id", this.statut));
         }
     }
 

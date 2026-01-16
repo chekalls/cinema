@@ -120,6 +120,35 @@
                                 </div>
                             </div>
 
+                            <div class="card card-outline card-info">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fas fa-couch mr-2"></i> Répartition par type de place</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <c:forEach var="tp" items="${typePlaces}">
+                                            <div class="form-group col-md-4">
+                                                <label>${tp.nom} (${tp.code})</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                                    </div>
+                                                    <input type="number" class="form-control" min="0" step="1"
+                                                        name="typePlaceCount_${tp.id}"
+                                                        value="${typePlaceCounts[tp.id]}"
+                                                        placeholder="0">
+                                                </div>
+                                                <small class="form-text text-muted">Nombre de sièges pour ce type.</small>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                    <div class="alert alert-light border">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        La capacité totale sera recalculée comme la somme des quantités ci-dessus.
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div class="callout callout-info">
                                 <h5><i class="fas fa-info-circle"></i> Information</h5>

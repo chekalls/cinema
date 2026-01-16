@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <div class="row">
     <div class="col-md-8">
@@ -56,6 +57,33 @@
                 </h3>
             </div>
             <div class="card-body">
+                <!-- Répartition par type de place -->
+                <c:if test="${not empty placesByType.counts && placesByType.counts.size() > 0}">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-list mr-2"></i>Répartition par type de place :</h6>
+                        <div class="row">
+                            <c:forEach var="entry" items="${placesByType.counts}">
+                                <div class="col-md-4 mb-2">
+                                    <div class="card card-sm border-left-info">
+                                        <div class="card-body p-2">
+                                            <c:set var="typePlace" value="${placesByType.types[entry.key]}" />
+                                            <strong>${typePlace.nom}</strong>
+                                            <div class="text-muted small">(${typePlace.code})</div>
+                                            <div class="mt-1">
+                                                <span class="badge badge-info">${entry.value} place<c:if test="${entry.value > 1}">s</c:if></span>
+                                                <span class="ml-2 text-success font-weight-bold">
+                                                    <fmt:formatNumber value="${entry.value * typePlace.prix}" type="currency" currencySymbol="" minFractionDigits="0" maxFractionDigits="0"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                        <hr/>
+                    </div>
+                </c:if>
+
                 <div class="seat-map" style="overflow-x: auto;">
                     <table class="table table-sm table-bordered text-center" style="width: auto; margin: auto;">
                         <thead>
@@ -219,6 +247,19 @@
                         </div>
                     </div>
                 </c:if>
+
+                <div class="info-box bg-light">
+                    <span class="info-box-icon bg-success">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Revenu maximum</span>
+                        <span class="info-box-number" style="font-size: 1.5rem;">
+                            <fmt:formatNumber value="${revenueMax}" type="currency" currencySymbol="" minFractionDigits="0" maxFractionDigits="0"/>
+                        </span>
+                        <span class="progress-description">si toutes les places sont vendues</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

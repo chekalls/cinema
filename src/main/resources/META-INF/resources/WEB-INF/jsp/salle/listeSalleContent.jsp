@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <!-- Success message -->
 <c:if test="${not empty message}">
@@ -76,6 +77,7 @@
                             <th>Numéro</th>
                             <th>Désignation</th>
                             <th>Capacité</th>
+                            <th>Revenu max</th>
                             <th>Cinéma</th>
                             <th style="width: 150px">Actions</th>
                         </tr>
@@ -83,7 +85,7 @@
                         <tbody>
                         <c:if test="${empty salles}">
                             <tr>
-                                <td colspan="6" class="text-center text-muted">
+                                <td colspan="7" class="text-center text-muted">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
                                     <p>Aucune salle trouvée</p>
                                     <a href="/salles/form" class="btn btn-primary btn-sm">
@@ -100,6 +102,15 @@
                                 <td><strong>${salle.numero}</strong></td>
                                 <td>${salle.designation}</td>
                                 <td>${salle.capaciteTotal}</td>
+                                <td>
+                                    <c:set var="rev" value="${revenueMaxBySalleId != null ? revenueMaxBySalleId[salle.id] : 0}" />
+                                    <c:choose>
+                                        <c:when test="${rev != null}">
+                                            <fmt:formatNumber value="${rev}" type="currency" currencySymbol="" minFractionDigits="0" maxFractionDigits="0"/>
+                                        </c:when>
+                                        <c:otherwise>0</c:otherwise>
+                                    </c:choose>
+                                </td>
                                 <td>
                                     <c:choose>
                                         <c:when test="${cinemasById != null && cinemasById[salle.cinemaId] != null}">${cinemasById[salle.cinemaId].nom}</c:when>

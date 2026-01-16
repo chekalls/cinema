@@ -1,3 +1,0 @@
-ALTER TABLE billet
-    ADD CONSTRAINT unique_billet_seance_place
-    UNIQUE (seance_id, place_id);

@@ -24,6 +24,7 @@ import mg.gestion.cinema.models.Place;
 import mg.gestion.cinema.models.Seance;
 import mg.gestion.cinema.models.Statut;
 import mg.gestion.cinema.models.Tarif;
+import mg.gestion.cinema.models.TypePlace;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
 
@@ -94,18 +95,18 @@ public class BilletController {
 
     @PostMapping("/acheter")
     public String acheterBillet(Model model, @RequestParam("seanceId") Integer seanceId,
-            @RequestParam("tarifId") Integer tarifId) {
+            @RequestParam("typePlaceId") Integer typePlaceId) {
         try (var conn = connexionService.getConnection()) {
             LocalDateTime now = LocalDateTime.now();
 
             if (!CGenericUtils.exist(conn, Seance.class, seanceId)) {
                 throw new IllegalArgumentException("La séance sélectionnée n'existe pas.");
             }
-            if (!CGenericUtils.exist(conn, Tarif.class, tarifId)) {
-                throw new IllegalArgumentException("Le tarif sélectionné n'existe pas.");
+            if (!CGenericUtils.exist(conn, TypePlace.class, typePlaceId)) {
+                throw new IllegalArgumentException("Le type de place sélectionné n'existe pas.");
             }
             Seance seance = CGenericUtils.findOne(conn, Seance.class, Map.of("id", seanceId));
-            Tarif tarif = CGenericUtils.findOne(conn, Tarif.class, Map.of("id", tarifId));
+            TypePlace typePlace = CGenericUtils.findOne(conn, TypePlace.class, Map.of("id", typePlaceId));
             List<Place> placesLibres = seance.getPlacesLibre(conn, now);
             if (placesLibres.isEmpty()) {
                 throw new IllegalStateException("Aucune place disponible pour cette séance.");
@@ -115,21 +116,26 @@ public class BilletController {
 
             Billet billet = new Billet();
             billet.setSeanceId(seanceId);
-            billet.setTarifId(tarifId);
+            billet.setTarifId(null);
             billet.setPlaceId(placeAffectee.getId());
-            billet.setPrixReel(tarif.getPrixBase());
+            billet.setPrixReel(typePlace.getPrix());
             billet.setDateAchat(now);
             billet.setStatut(statutBillet.getId());
 
             connexionService.executeInTransaction(connection -> {
-                Billet result = (Billet) billet.save(connection);
-
-                Historique historique = new Historique();
-                historique.setTableName("billet");
-                historique.setClePrimaire(result.getId());
-                historique.setStatut(statutBillet.getId());
-                historique.setDateModification(now);
-                CGenericUtils.save(connection, historique);
+                try {
+                    Billet result = (Billet) billet.save(connection);
+    
+                    Historique historique = new Historique();
+                    historique.setTableName("billet");
+                    historique.setClePrimaire(result.getId());
+                    historique.setStatut(statutBillet.getId());
+                    historique.setDateModification(now);
+                    CGenericUtils.save(connection, historique);
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
 
             model.addAttribute("success", "Billet acheté avec succès !");
@@ -140,18 +146,14 @@ public class BilletController {
         }
     }
 
-    // @GetMapping("/details/{id}")
-    // public String detailsBillet(Model model,@PathVariable("id") Integer billetId){
-
-    // }
-
     @GetMapping("/achatForm")
     public String achatBilletForm(Model model) {
         try (var conn = connexionService.getConnection()) {
             List<Film> films = CGenericUtils.find(conn, Film.class, null);
+            List<TypePlace> typePlaces = CGenericUtils.find(conn, TypePlace.class, null);
+
             model.addAttribute("films", films);
-            List<Tarif> tarifs = CGenericUtils.find(conn, Tarif.class, null);
-            model.addAttribute("tarifs", tarifs);
+            model.addAttribute("typePlaces", typePlaces);
             return "billet/formulaireAchatBillet";
         } catch (Exception e) {
             model.addAttribute("error", "Erreur lors du chargement du formulaire : " + e.getMessage());

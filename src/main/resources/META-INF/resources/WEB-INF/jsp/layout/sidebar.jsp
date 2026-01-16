@@ -171,6 +171,37 @@
                     </ul>
                 </li>
 
+                <li class="nav-header">STATISTIQUES</li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <p>
+                            Statistiques
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/stats/salles" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Salles</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/stats/films" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Films</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/stats/places" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Places</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="nav-header">ADMINISTRATION</li>
                 <li class="nav-item">
                     <a href="/about" class="nav-link">

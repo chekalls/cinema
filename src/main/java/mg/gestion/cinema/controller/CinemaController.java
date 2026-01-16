@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import mg.gestion.cinema.models.Cinema;
+import mg.gestion.cinema.models.TypePlace;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
 
@@ -25,6 +26,82 @@ public class CinemaController {
 
     @Autowired
     private ConnexionService connexionService;
+
+    @GetMapping("/type-place/form")
+    public String typePlaceForm(Model model){
+        if (!model.containsAttribute("typePlace")) {
+            model.addAttribute("typePlace", new TypePlace());
+        }
+        return "typePlace/formTypePlace";
+    }
+
+    @GetMapping("/type-place/edit/{id}")
+    public String editTypePlace(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes) {
+        try (var conn = connexionService.getConnection()) {
+            Map<String, Object> criteria = new HashMap<>();
+            criteria.put("id", id);
+            TypePlace typePlace = CGenericUtils.findOne(conn, TypePlace.class, criteria);
+
+            if (typePlace == null) {
+                redirectAttributes.addFlashAttribute("error", "Type de place non trouvé");
+                return "redirect:/type-place";
+            }
+
+            model.addAttribute("typePlace", typePlace);
+            return "typePlace/formTypePlace";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement : " + e.getMessage());
+            return "redirect:/type-place";
+        }
+    }
+
+    @PostMapping("/type-place/save")
+    public String saveTypePlace(@ModelAttribute TypePlace typePlace, RedirectAttributes redirectAttributes) {
+        try (var conn = connexionService.getConnection()) {
+            boolean isNew = typePlace.getId() == null;
+
+            if (typePlace.getNom() == null || typePlace.getNom().trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Le nom est obligatoire");
+                redirectAttributes.addFlashAttribute("typePlace", typePlace);
+                return "redirect:/type-place/form";
+            }
+
+            if (typePlace.getCode() == null || typePlace.getCode().trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Le code est obligatoire");
+                redirectAttributes.addFlashAttribute("typePlace", typePlace);
+                return "redirect:/type-place/form";
+            }
+
+            if (typePlace.getPrix() <= 0) {
+                redirectAttributes.addFlashAttribute("error", "Le prix doit être supérieur à 0");
+                redirectAttributes.addFlashAttribute("typePlace", typePlace);
+                return "redirect:/type-place/form";
+            }
+
+            CGenericUtils.save(conn, typePlace);
+
+            String message = isNew ? "Type de place ajouté avec succès" : "Type de place modifié avec succès";
+            redirectAttributes.addFlashAttribute("message", message);
+            return "redirect:/type-place";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de l'enregistrement : " + e.getMessage());
+            redirectAttributes.addFlashAttribute("typePlace", typePlace);
+            return "redirect:/type-place/form";
+        }
+    }
+
+    @GetMapping("/type-place")
+    public String listTypePlace(Model model){
+        try (var conn = connexionService.getConnection()) {
+            List<TypePlace> typePlaces = CGenericUtils.find(conn, TypePlace.class, null);
+
+            model.addAttribute(typePlaces);
+            return "typePlace/listeTypePlace";
+        } catch (Exception e) {
+            model.addAttribute("error", "Erreur lors du chargement des types de place : " + e.getMessage());
+            return "typePlace/listeTypePlace";
+        }
+    }
 
     @GetMapping("/cinemas")
     public String listeCinemas(@RequestParam(required = false) String search, Model model) {
