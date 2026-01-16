@@ -8,6 +8,7 @@ import mg.gestion.cinema.annotation.Column;
 import mg.gestion.cinema.annotation.Loader;
 import mg.gestion.cinema.annotation.PrimaryKey;
 import mg.gestion.cinema.annotation.Table;
+import mg.gestion.cinema.utils.CGenericUtils;
 
 @Table(name = "billet")
 public class Billet extends BaseEntity{
@@ -41,6 +42,19 @@ public class Billet extends BaseEntity{
 
     @Column(ignore = true)
     private Tarif tarif;
+
+    @Column(name="type_personne_id")
+    private Integer type_personne;
+
+    public double getActualPrixBillet(Connection conn){
+        Place place1 = CGenericUtils.findOne(conn, Place.class, Map.of("id",this.getPlaceId()),true);
+        TypePlacePrix typePlacePrix = CGenericUtils.findOne(conn, TypePlacePrix.class, Map.of("type_place_id",place1.getTypePlaceId(),"type_personne_id",this.getType_personne()));
+        if (typePlacePrix==null){
+            return place1.getTypePlace().getPrix();
+        }
+        return typePlacePrix.getPrix_place();
+
+    }
 
     @Loader
     public void loadAttributes(Connection conn){
@@ -144,4 +158,10 @@ public class Billet extends BaseEntity{
 
    public void setTarif(Tarif tarif) {
     this.tarif = tarif;
-   }}
+   }
+
+    public Integer getType_personne() {
+        return type_personne;
+    }
+}
+

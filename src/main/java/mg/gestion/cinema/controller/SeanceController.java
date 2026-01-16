@@ -191,6 +191,7 @@ public class SeanceController {
             model.addAttribute("seance", seance);
             model.addAttribute("billets",billets);
             model.addAttribute("places",places);
+            model.addAttribute("CaSeance",seance.getCaSeance(conn));
             return "seance/detailSeance";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement : " + e.getMessage());

@@ -275,6 +275,16 @@
                 </div>
 
                 <div class="info-box bg-light">
+                    <span class="info-box-icon bg-success">
+                        <i class="fas fa-ticket-alt"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Ca seance</span>
+                        <span class="info-box-number">${CaSeance}</span>
+                    </div>
+                </div>
+
+                <div class="info-box bg-light">
                     <span class="info-box-icon bg-danger">
                         <i class="fas fa-shopping-cart"></i>
                     </span>

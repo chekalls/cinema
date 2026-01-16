@@ -105,7 +105,15 @@ public class Seance extends BaseEntity {
         List<Seance> seances = CGenericUtils.executeQuery(conn, Seance.class, sql, date);
         return seances;
     }
+    public double getCaSeance(Connection conn){
+        List<Billet> seanceList = CGenericUtils.find(conn, Billet.class, Map.of("seance_id",this.getId()),true);
+        double result=0;
+        for (Billet billet : seanceList) {
+            result += billet.getActualPrixBillet(conn);
+        }
+        return result;
 
+    }
     @Loader
     private void loadAttributes(Connection conn) {
         if (this.filmId != null) {
