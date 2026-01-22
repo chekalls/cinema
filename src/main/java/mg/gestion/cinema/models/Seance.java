@@ -34,36 +34,83 @@ public class Seance extends BaseEntity {
     private Salle salle;
 
     public List<Billet> getBillets(Connection conn, LocalDateTime date) {
-        String sql = "SELECT * FROM billet WHERE seance_id = ? AND date_achat <= ? ORDER BY date_achat ASC";
-        List<Billet> billets = CGenericUtils.executeQuery(conn, Billet.class, sql, this.id, date);
-        for (Billet billet : billets) {
-            billet.loadAttributes(conn);
+        try {
+            String sql = "SELECT * FROM billet WHERE seance_id = ? AND date_achat <= ? ORDER BY date_achat ASC";
+            List<Billet> billets = CGenericUtils.executeQuery(conn, Billet.class, sql, this.id, date);
+            for (Billet billet : billets) {
+                billet.loadAttributes(conn);
+            }
+            return billets;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return billets;
+        return null;
     }
 
-    public List<Place> getPlaces(Connection conn, LocalDateTime dateVisualisation) {
-        String sql = "SELECT p.id, p.rang, p.col, p.type_place_id, p.salle_id, p.date_modification, " +
-                "  CASE " +
-                "    WHEN b.id IS NOT NULL AND s.code = 'PAYE' THEN 7 " +
-                "    WHEN b.id IS NOT NULL AND s.code = 'UTILISE' THEN 7 " +
-                "    WHEN b.id IS NOT NULL AND s.code = 'PANIER' THEN 5 " +
-                "    ELSE p.statut " +
-                "  END AS statut " +
-                "FROM place p " +
-                "LEFT JOIN billet b ON b.place_id = p.id AND b.seance_id = ? " +
-                "    AND b.date_achat <= ? " +
-                "LEFT JOIN statut s ON b.statut = s.id " +
+    public List<Place> getPlaces(Connection conn,LocalDateTime dateVisualisation){
+        List<Place> places = CGenericUtils.find(conn, Place.class, Map.of("salle_id",this.getSalleId()),true);
+        for (Place place : places) {
+            Statut statut = place.getStatutByDate(dateVisualisation, conn);
+            place.setStatutDetails(statut);
+            place.setStatut(statut.getId());
+        }
+        return places;
+    }
+
+    // public List<Place> getPlaces(Connection conn, LocalDateTime dateVisualisation) {
+    //     String sql = "SELECT p.id, p.rang, p.col, p.type_place_id, p.salle_id, p.date_modification, " +
+    //             "  CASE " +
+    //             "    WHEN b.id IS NOT NULL AND s.code = 'PAYE' THEN 7 " +
+    //             "    WHEN b.id IS NOT NULL AND s.code = 'UTILISE' THEN 7 " +
+    //             "    WHEN b.id IS NOT NULL AND s.code = 'PANIER' THEN 5 " +
+    //             "    ELSE p.statut " +
+    //             "  END AS statut " +
+    //             "FROM place p " +
+    //             "LEFT JOIN billet b ON b.place_id = p.id AND b.seance_id = ? " +
+    //             "    AND b.date_achat <= ? " +
+    //             "LEFT JOIN statut s ON b.statut = s.id " +
+    //             "WHERE p.salle_id = ? " +
+    //             "ORDER BY p.rang, p.col";
+
+    //     List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
+    //             this.id,
+    //             dateVisualisation,
+    //             this.salleId);
+    //     for (Place place : places) {
+    //         place.loadAttributes(conn);
+    //     }
+    //     return places;
+    // }
+
+    public List<Place> getPlacesLibre(Connection conn,int typePlaceId ,LocalDateTime dateAchat){
+        Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("code", "DISPO"));
+
+        if (statutPlace == null) {
+            return List.of();
+        }
+
+        String sql = "SELECT p.* FROM place p " +
                 "WHERE p.salle_id = ? " +
+                "AND p.type_place_id = ? " +
+                "AND p.statut = ? " +
+                "AND NOT EXISTS (" +
+                "  SELECT 1 FROM billet b " +
+                "  JOIN statut s ON b.statut = s.id " +
+                "  WHERE b.place_id = p.id " +
+                "  AND b.seance_id = ? " +
+                "  AND s.code IN ('PAYE', 'UTILISE')" +
+                ") " +
                 "ORDER BY p.rang, p.col";
 
         List<Place> places = CGenericUtils.executeQuery(conn, Place.class, sql,
-                this.id,
-                dateVisualisation,
-                this.salleId);
+                this.salleId,
+                typePlaceId,
+                statutPlace.getId(),
+                this.id);
         for (Place place : places) {
             place.loadAttributes(conn);
         }
+
         return places;
     }
 
@@ -108,15 +155,16 @@ public class Seance extends BaseEntity {
         List<Seance> seances = CGenericUtils.executeQuery(conn, Seance.class, sql, date);
         return seances;
     }
-    public double getCaSeance(Connection conn){
-        List<Billet> seanceList = CGenericUtils.find(conn, Billet.class, Map.of("seance_id",this.getId()),true);
-        double result=0;
+
+    public double getCaSeance(Connection conn) {
+        List<Billet> seanceList = CGenericUtils.find(conn, Billet.class, Map.of("seance_id", this.getId()), true);
+        double result = 0;
         for (Billet billet : seanceList) {
-            result += billet.getActualPrixBillet(conn);
+            result += billet.getPrixWithReduction(conn);
         }
         return result;
-
     }
+
     @Loader
     private void loadAttributes(Connection conn) {
         if (this.filmId != null) {

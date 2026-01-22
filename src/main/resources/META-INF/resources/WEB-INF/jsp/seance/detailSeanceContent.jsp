@@ -248,6 +248,153 @@
         </div>
         </c:if>
 
+        <!-- Statistiques par type de place -->
+        <c:if test="${not empty statsByTypePlace}">
+        <div class="card card-info card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-couch mr-2"></i>
+                    Statistiques par type de place
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Type de place</th>
+                                <th class="text-center">Nombre vendus</th>
+                                <th class="text-center">% du total</th>
+                                <th class="text-right">CA généré</th>
+                                <th class="text-right">Prix moyen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${statsByTypePlace}" var="stat">
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-couch mr-1"></i>
+                                            ${stat.key}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong>${stat.value}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <c:set var="pourcentage" value="${(stat.value * 100.0) / billets.size()}" />
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-info" 
+                                                 role="progressbar" 
+                                                 style="width: ${pourcentage}%"
+                                                 aria-valuenow="${pourcentage}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                <c:out value="${String.format('%.1f', pourcentage)}" />%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong><c:out value="${String.format('%.2f', caByTypePlace[stat.key])}" /> Ar</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <c:set var="prixMoyen" value="${caByTypePlace[stat.key] / stat.value}" />
+                                        <c:out value="${String.format('%.2f', prixMoyen)}" /> Ar
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                        <tfoot class="bg-light font-weight-bold">
+                            <tr>
+                                <td>TOTAL</td>
+                                <td class="text-center">${billets.size()}</td>
+                                <td class="text-center">100%</td>
+                                <td class="text-right">${CaSeance} Ar</td>
+                                <td class="text-right">
+                                    <c:set var="prixMoyenTotal" value="${CaSeance / billets.size()}" />
+                                    <c:out value="${String.format('%.2f', prixMoyenTotal)}" /> Ar
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </c:if>
+
+        <!-- Statistiques par type de personne -->
+        <c:if test="${not empty statsByTypePersonne}">
+        <div class="card card-secondary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users mr-2"></i>
+                    Statistiques par type de personne
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Type de personne</th>
+                                <th class="text-center">Nombre vendus</th>
+                                <th class="text-center">% du total</th>
+                                <th class="text-right">CA généré</th>
+                                <th class="text-right">Prix moyen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach items="${statsByTypePersonne}" var="stat">
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-secondary">
+                                            <i class="fas fa-user mr-1"></i>
+                                            ${stat.key}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong>${stat.value}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <c:set var="pourcentage" value="${(stat.value * 100.0) / billets.size()}" />
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-secondary" 
+                                                 role="progressbar" 
+                                                 style="width: ${pourcentage}%"
+                                                 aria-valuenow="${pourcentage}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                <c:out value="${String.format('%.1f', pourcentage)}" />%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong><c:out value="${String.format('%.2f', caByTypePersonne[stat.key])}" /> Ar</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <c:set var="prixMoyen" value="${caByTypePersonne[stat.key] / stat.value}" />
+                                        <c:out value="${String.format('%.2f', prixMoyen)}" /> Ar
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                        <tfoot class="bg-light font-weight-bold">
+                            <tr>
+                                <td>TOTAL</td>
+                                <td class="text-center">${billets.size()}</td>
+                                <td class="text-center">100%</td>
+                                <td class="text-right">${CaSeance} Ar</td>
+                                <td class="text-right">
+                                    <c:set var="prixMoyenTotal" value="${CaSeance / billets.size()}" />
+                                    <c:out value="${String.format('%.2f', prixMoyenTotal)}" /> Ar
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>        </c:if>
+
         <c:if test="${not empty billets}">
         <div class="card card-outline card-dark">
             <div class="card-header">
@@ -385,6 +532,66 @@
             </div>
         </div>
 
+        <!-- Résumé par type de place -->
+        <c:if test="${not empty statsByTypePlace}">
+        <div class="card card-info card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-couch mr-2"></i>
+                    Par type de place
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <c:forEach items="${statsByTypePlace}" var="stat">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-couch text-info mr-2"></i>
+                                    <strong>${stat.key}</strong>
+                                </span>
+                                <span class="badge badge-info badge-pill">${stat.value}</span>
+                            </div>
+                            <small class="text-muted">
+                                CA: <c:out value="${String.format('%.2f', caByTypePlace[stat.key])}" /> Ar
+                            </small>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+        </div>
+        </c:if>
+
+        <!-- Résumé par type de personne -->
+        <c:if test="${not empty statsByTypePersonne}">
+        <div class="card card-secondary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-users mr-2"></i>
+                    Par type de personne
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <c:forEach items="${statsByTypePersonne}" var="stat">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-user text-secondary mr-2"></i>
+                                    <strong>${stat.key}</strong>
+                                </span>
+                                <span class="badge badge-secondary badge-pill">${stat.value}</span>
+                            </div>
+                            <small class="text-muted">
+                                CA: <c:out value="${String.format('%.2f', caByTypePersonne[stat.key])}" /> Ar
+                            </small>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+        </div>
+        </c:if>
+
         <div class="card card-warning card-outline">
             <div class="card-header">
                 <h3 class="card-title">
@@ -405,6 +612,10 @@
                     <i class="fas fa-trash mr-2"></i>
                     Supprimer la séance
                 </button>
+                <a href="/seances/reset/${seance.id}" class="btn btn-info btn-block mb-2">
+                    <i class="fas fa-edit mr-2"></i>
+                    réinisialiser la séance
+                </a>
             </div>
         </div>
     </div>

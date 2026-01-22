@@ -34,11 +34,13 @@ public class Place extends BaseEntity {
     private Statut statutDetails;
 
     public Statut getStatutByDate(LocalDateTime dateTime, Connection conn) {
-        String sql = "SELECT * FROM historique WHERE table_name = 'place' AND date_modification <= ? ORDER BY date_modification DESC LIMIT 1";
-        Historique historique = CGenericUtils.executeQueryOne(conn, Historique.class, sql, dateTime);
+        String sql = "SELECT * FROM historique WHERE table_name = 'place' AND date_modification <= ? AND cle_primaire = ? ORDER BY date_modification DESC LIMIT 1";
+        Historique historique = CGenericUtils.executeQueryOne(conn, Historique.class, sql, dateTime,this.getId());
         Statut statut = null;
         if (historique != null) {
             statut = CGenericUtils.findOne(conn, Statut.class, Map.of("id", historique.getStatut()));
+        }else{
+            statut = CGenericUtils.findOne(conn, Statut.class, Map.of("id", this.getStatut()));
         }
         return statut;
     }

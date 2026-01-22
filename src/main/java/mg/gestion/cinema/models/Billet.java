@@ -55,13 +55,25 @@ public class Billet extends BaseEntity{
     @Column(name="type_personne_id")
     private Integer type_personne;
 
+    public double getPrixWithReduction(Connection conn){
+        Place place1 = CGenericUtils.findOne(conn, Place.class, Map.of("id",this.getPlaceId()),true);
+        TypePlacePrix typePlacePrix = CGenericUtils.findOne(conn, TypePlacePrix.class, Map.of("type_place_id",place1.getTypePlaceId(),"type_personne_id",this.getType_personne()));
+        if(typePlacePrix.getParentId()!=null){
+            TypePlacePrix parentTypePlacePrix = CGenericUtils.findOne(conn, TypePlacePrix.class, Map.of("id",typePlacePrix.getParentId()));
+            double reduction = typePlacePrix.getReduction();
+            double parentPrix = parentTypePlacePrix.getPrixPlace();
+            return parentPrix - (parentPrix * reduction / 100);
+        }
+        return typePlacePrix.getPrixPlace();
+    }
+
     public double getActualPrixBillet(Connection conn){
         Place place1 = CGenericUtils.findOne(conn, Place.class, Map.of("id",this.getPlaceId()),true);
         TypePlacePrix typePlacePrix = CGenericUtils.findOne(conn, TypePlacePrix.class, Map.of("type_place_id",place1.getTypePlaceId(),"type_personne_id",this.getType_personne()));
         if (typePlacePrix==null){
             return place1.getTypePlace().getPrix();
         }
-        return typePlacePrix.getPrix_place();
+        return typePlacePrix.getPrixPlace();
 
     }
 
@@ -82,7 +94,7 @@ public class Billet extends BaseEntity{
         }
         if(this.type_personne != null){
             this.typePersone = CGenericUtils.findOne(conn, TypePersone.class, Map.of("id",this.getType_personne()));
-            this.prixRemise = this.getActualPrixBillet(conn);
+            this.prixRemise = this.getPrixWithReduction(conn);
         }
     }
 
@@ -156,6 +168,13 @@ public class Billet extends BaseEntity{
 
    public void setSeance(Seance seance) {
     this.seance = seance;
+   }
+
+   public Place getPlace(Connection conn){
+    if(this.place == null && this.placeId != null){
+        this.place = mg.gestion.cinema.utils.CGenericUtils.findOne(conn,Place.class,Map.of("id",this.placeId));
+    }
+    return place;
    }
 
    public Place getPlace() {

@@ -486,7 +486,8 @@ public class CGenericUtils {
     /**
      * Recherche d'une seule entité par critères
      */
-    public static <T extends BaseEntity> T findOne(Connection connection, Class<T> clazz, Map<String, Object> criteria) {
+    public static <T extends BaseEntity> T findOne(Connection connection, Class<T> clazz,
+            Map<String, Object> criteria) {
         return findOne(connection, clazz, criteria, false);
     }
 
@@ -711,7 +712,13 @@ public class CGenericUtils {
      */
     public static <T extends BaseEntity> List<T> executeQuery(Connection connection, Class<T> clazz, String sql,
             Object... parameters) {
-        return executeQuery(connection, clazz, sql, false, parameters);
+        try {
+            return executeQuery(connection, clazz, sql, false, parameters);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error executing custom query: " + sql, e);
+        }
     }
 
     /**
@@ -925,7 +932,7 @@ public class CGenericUtils {
                     }
                     Field field = resolveField(fieldsByName, entry.getKey());
                     sql.append(ClassUtils.getFieldName(field)).append(" = ?");
-                
+
                     parameters.add(entry.getValue());
                     count++;
                 }
@@ -993,9 +1000,11 @@ public class CGenericUtils {
     public static <T extends BaseEntity> Page<T> executeQueryWithPagination(
             Connection connection, Class<T> clazz, String countSql, String dataSql,
             int pageNumber, int pageSize, boolean loadAttributes, Object... parameters) {
-        
-        if (pageNumber < 1) pageNumber = 1;
-        if (pageSize < 1) pageSize = 10;
+
+        if (pageNumber < 1)
+            pageNumber = 1;
+        if (pageSize < 1)
+            pageSize = 10;
 
         try {
             // Récupérer le nombre total d'éléments
@@ -1023,12 +1032,14 @@ public class CGenericUtils {
     public static <T extends BaseEntity> Page<T> findPaginated(
             Connection connection, Class<T> clazz, Map<String, Object> criteria,
             int pageNumber, int pageSize, boolean loadAttributes) {
-        
+
         if (connection == null) {
             throw new IllegalArgumentException("Connection must not be null");
         }
-        if (pageNumber < 1) pageNumber = 1;
-        if (pageSize < 1) pageSize = 10;
+        if (pageNumber < 1)
+            pageNumber = 1;
+        if (pageSize < 1)
+            pageSize = 10;
 
         try {
             String table = ClassUtils.getTableName(clazz);
@@ -1059,7 +1070,8 @@ public class CGenericUtils {
             if (!columnNames.isEmpty()) {
                 whereClause.append(" WHERE ");
                 for (int i = 0; i < columnNames.size(); i++) {
-                    if (i > 0) whereClause.append(" AND ");
+                    if (i > 0)
+                        whereClause.append(" AND ");
                     Object value = orderedCriteria.get(i).getValue();
                     if (value instanceof String) {
                         whereClause.append(columnNames.get(i)).append(" LIKE ?");
@@ -1094,7 +1106,7 @@ public class CGenericUtils {
             int offset = (pageNumber - 1) * pageSize;
 
             // Requête de données
-                String dataSql = "SELECT * FROM " + table + whereClause.toString() 
+            String dataSql = "SELECT * FROM " + table + whereClause.toString()
                     + " ORDER BY id DESC LIMIT " + pageSize + " OFFSET " + offset;
             List<T> content = executeQuery(connection, clazz, dataSql, loadAttributes, params.toArray());
 
@@ -1110,12 +1122,14 @@ public class CGenericUtils {
     public static <T extends BaseEntity> Page<T> searchPaginated(
             Connection connection, Class<T> clazz, String search,
             int pageNumber, int pageSize, boolean loadAttributes) {
-        
+
         if (connection == null) {
             throw new IllegalArgumentException("Connection must not be null");
         }
-        if (pageNumber < 1) pageNumber = 1;
-        if (pageSize < 1) pageSize = 10;
+        if (pageNumber < 1)
+            pageNumber = 1;
+        if (pageSize < 1)
+            pageSize = 10;
 
         try {
             String table = ClassUtils.getTableName(clazz);
@@ -1123,7 +1137,8 @@ public class CGenericUtils {
             // Champs String utilisables pour la recherche
             List<Field> searchableFields = new ArrayList<>();
             for (Field field : getAllFields(clazz)) {
-                if (isFieldIgnored(field)) continue;
+                if (isFieldIgnored(field))
+                    continue;
                 if (field.getType().equals(String.class)) {
                     searchableFields.add(field);
                 }
@@ -1140,12 +1155,13 @@ public class CGenericUtils {
                     params.add(categorie);
                 }
             }
-            
+
             if (search != null && !search.trim().isEmpty() && !searchableFields.isEmpty()) {
                 whereClause.append(whereClause.indexOf(" WHERE ") >= 0 ? " AND " : " WHERE ");
                 String pattern = "%" + search.trim() + "%";
                 for (int i = 0; i < searchableFields.size(); i++) {
-                    if (i > 0) whereClause.append(" OR ");
+                    if (i > 0)
+                        whereClause.append(" OR ");
                     whereClause.append(ClassUtils.getFieldName(searchableFields.get(i))).append(" ILIKE ?");
                     params.add(pattern);
                 }
@@ -1165,7 +1181,7 @@ public class CGenericUtils {
             int offset = (pageNumber - 1) * pageSize;
 
             // Requête de données
-            String dataSql = "SELECT * FROM " + table + whereClause.toString() 
+            String dataSql = "SELECT * FROM " + table + whereClause.toString()
                     + " ORDER BY id DESC LIMIT " + pageSize + " OFFSET " + offset;
             List<T> content = executeQuery(connection, clazz, dataSql, loadAttributes, params.toArray());
 

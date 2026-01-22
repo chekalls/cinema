@@ -95,7 +95,28 @@
                         </div>
                         <small class="form-text text-muted">Choisissez le type de place souhaité.</small>
                     </div>
-
+                    
+                    <div class="form-group">
+                        <label for="quantite">Quantité <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-couch"></i>
+                                </span>
+                            </div>
+                            <input type="number"
+                                   name="quantite"
+                                   id="quantite"
+                                   class="form-control"
+                                   value="1"
+                                   min="1"
+                                   required>
+                        </div>
+                        <small class="form-text text-muted">
+                            Indiquez le nombre de places souhaitées.
+                        </small>
+                    </div>
+                    
                     <!-- Affichage du prix -->
                     <div id="affichagePrix" style="display: none;" class="alert alert-info">
                         <strong><i class="fas fa-info-circle mr-2"></i>Prix :</strong> <span id="prixValeur">0.00</span> €

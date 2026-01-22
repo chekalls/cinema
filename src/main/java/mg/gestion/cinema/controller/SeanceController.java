@@ -19,9 +19,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import mg.gestion.cinema.models.Billet;
 import mg.gestion.cinema.models.Film;
+import mg.gestion.cinema.models.Historique;
 import mg.gestion.cinema.models.Place;
 import mg.gestion.cinema.models.Salle;
 import mg.gestion.cinema.models.Seance;
+import mg.gestion.cinema.models.Statut;
 import mg.gestion.cinema.service.ConnexionService;
 import mg.gestion.cinema.utils.CGenericUtils;
 import mg.gestion.cinema.utils.DataUtil;
@@ -32,6 +34,60 @@ import mg.gestion.cinema.utils.Page;
 public class SeanceController {
     @Autowired
     private ConnexionService connexionService;
+
+    @GetMapping("/reset/{id}")
+    public String resetSeance(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            Map<String, Object> criteria = new HashMap<>();
+            criteria.put("id", id);
+
+            connexionService.executeInTransaction(conn -> {
+                Seance seance = CGenericUtils.findOne(conn, Seance.class, criteria, true);
+
+                if (seance == null) {
+                    redirectAttributes.addFlashAttribute("error", "Séance non trouvée");
+                    throw new RuntimeException("Séance non trouvée");
+                }
+
+                List<Billet> billets = CGenericUtils.find(conn, Billet.class, Map.of("seanceId", id));
+                Statut statutPlace = CGenericUtils.findOne(conn, Statut.class, Map.of("categorie","PLACE","code","DISPO"));
+
+                for (Billet billet : billets) {
+                    List<Historique> historiques = CGenericUtils.find(conn, Historique.class,
+                            Map.of("table_name", "billet", "cle_primaire", billet.getId()));
+                    if (historiques == null)
+                        continue;
+                    for (Historique h : historiques) {
+                        CGenericUtils.delete(conn, h);
+                    }
+                    Place place = billet.getPlace(conn);
+                    if(place==null){
+                        throw new RuntimeException("Place non trouvée pour le billet ID: " + billet.getId());
+                    }
+                    place.setStatut(statutPlace.getId());
+                    CGenericUtils.save(conn, place);
+
+
+                    Historique historique = new Historique();
+                    historique.setTableName("place");
+                    historique.setClePrimaire(place.getId());
+                    historique.setDateModification(LocalDateTime.now());
+                    historique.setStatut(statutPlace.getId());
+                    historique.save(conn);
+
+                    System.out.println("saving ==============");
+                    CGenericUtils.delete(conn, billet);
+                }
+            });
+
+            redirectAttributes.addFlashAttribute("message", "Séance réinitialisée avec succès");
+            return "redirect:/seances";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Erreur lors de la réinitialisation de la séance : " + e.getMessage());
+            return "redirect:/seances";
+            }
+        }
 
     @GetMapping
     public String listeSeances(@RequestParam(required = false) String search,
@@ -46,7 +102,7 @@ public class SeanceController {
             model.addAttribute("size", seancePage.getSize());
             model.addAttribute("total", seancePage.getTotalElements());
             model.addAttribute("totalPages", seancePage.getTotalPages());
-            
+
             if (search != null && !search.trim().isEmpty()) {
                 model.addAttribute("search", search);
             }
@@ -123,10 +179,9 @@ public class SeanceController {
             }
 
             if (seance.getFin() == null) {
-                Film film = CGenericUtils.findOne(conn, Film.class, Map.of("id",seance.getFilmId()));
+                Film film = CGenericUtils.findOne(conn, Film.class, Map.of("id", seance.getFilmId()));
                 seance.setFin(
-                    seance.getDebut().plusMinutes(film.getDureeMinutes())
-                );
+                        seance.getDebut().plusMinutes(film.getDureeMinutes()));
             }
 
             else if (seance.getFin().isBefore(seance.getDebut())) {
@@ -169,29 +224,53 @@ public class SeanceController {
     }
 
     @GetMapping("/view/{id}")
-    public String voirSeance(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes,@RequestParam(name = "date",required = false) String date) {
+    public String voirSeance(@PathVariable Integer id, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(name = "date", required = false) String date) {
 
         try (Connection conn = connexionService.getConnection()) {
             Map<String, Object> criteria = new HashMap<>();
             criteria.put("id", id);
             Seance seance = CGenericUtils.findOne(conn, Seance.class, criteria, true);
-            
-            LocalDateTime dateTime = (date!=null && !date.isEmpty()) ? DataUtil.convertStringToDateTime(date, "yyyy-MM-dd'T'HH:mm") : LocalDateTime.now();
+
+            LocalDateTime dateTime = (date != null && !date.isEmpty())
+                    ? DataUtil.convertStringToDateTime(date, "yyyy-MM-dd'T'HH:mm")
+                    : LocalDateTime.now();
 
             if (seance == null) {
                 redirectAttributes.addFlashAttribute("error", "Séance non trouvée");
                 return "redirect:/seances";
             }
             List<Billet> billets = seance.getBillets(conn, dateTime);
-            int billetDisponible = seance.getSalle().getCapaciteTotal() - billets.size();
             List<Place> places = seance.getPlaces(conn, dateTime);
+            int billetDisponible = seance.getSalle().getCapaciteTotal() - billets.size();
 
+            // Statistiques par type de place
+            Map<String, Integer> statsByTypePlace = new HashMap<>();
+            Map<String, Double> caByTypePlace = new HashMap<>();
+            
+            Map<String, Integer> statsByTypePersonne = new HashMap<>();
+            Map<String, Double> caByTypePersonne = new HashMap<>();
+            
+            for (Billet billet : billets) {
+                String typePlaceNom = billet.getTypePlace() != null ? billet.getTypePlace().getNom() : "Non défini";
+                statsByTypePlace.put(typePlaceNom, statsByTypePlace.getOrDefault(typePlaceNom, 0) + 1);
+                caByTypePlace.put(typePlaceNom, caByTypePlace.getOrDefault(typePlaceNom, 0.0) + billet.getPrixReel());
+                
+                String typePersonneNom = billet.getTypePersone() != null ? billet.getTypePersone().getNom() : "Standard";
+                statsByTypePersonne.put(typePersonneNom, statsByTypePersonne.getOrDefault(typePersonneNom, 0) + 1);
+                caByTypePersonne.put(typePersonneNom, caByTypePersonne.getOrDefault(typePersonneNom, 0.0) + billet.getPrixReel());
+            }
 
-            model.addAttribute("disponible",billetDisponible);
+            model.addAttribute("disponible", billetDisponible);
             model.addAttribute("seance", seance);
-            model.addAttribute("billets",billets);
-            model.addAttribute("places",places);
-            model.addAttribute("CaSeance",seance.getCaSeance(conn));
+            model.addAttribute("billets", billets);
+            model.addAttribute("places", places);
+            model.addAttribute("CaSeance", seance.getCaSeance(conn));
+            model.addAttribute("statsByTypePlace", statsByTypePlace);
+            model.addAttribute("caByTypePlace", caByTypePlace);
+            model.addAttribute("statsByTypePersonne", statsByTypePersonne);
+            model.addAttribute("caByTypePersonne", caByTypePersonne);
+            
             return "seance/detailSeance";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erreur lors du chargement : " + e.getMessage());

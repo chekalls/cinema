@@ -143,6 +143,12 @@
                                 <p>Acheter un billet</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="/billets/tarifs" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Tarifs</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -200,6 +206,15 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+
+                <li class="nav-header">RÉFÉRENTIELS</li>
+                <!-- Types de personnes -->
+                <li class="nav-item">
+                    <a href="/personnes/types" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Types de personnes</p>
+                    </a>
                 </li>
 
                 <li class="nav-header">ADMINISTRATION</li>
